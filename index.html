@@ -1,0 +1,2009 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ROWINGエルゴ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow&#43;Semi&#43;Condensed:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f5f2; --surface: #fcfcfb; --surface-2: #f1efe9;
+  --text: #0b0b0b; --text-2: #52514e; --text-3: #7d7c77;
+  --border: rgba(11,11,11,0.10); --border-2: rgba(11,11,11,0.18);
+  --grid: rgba(11,11,11,0.07);
+   
+  --u1: #2a78d6; --u2: #eb6834; --u3: #1baf7a;
+   
+  --nat: #8a8985; --ref: #4f4e4a; --nat-dot: rgba(138,137,133,0.32); --iso: rgba(79,78,74,0.35);
+  --warn-bg: #fbf1dc; --warn-tx: #7a5200;
+  --radius: 8px;
+   
+  --num: "Barlow Semi Condensed", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --surface-2: #232321;
+    --text: #f0efec; --text-2: #c3c2b7; --text-3: #94938c;
+    --border: rgba(240,239,236,0.10); --border-2: rgba(240,239,236,0.20);
+    --grid: rgba(240,239,236,0.08);
+    --u1: #3987e5; --u2: #d95926; --u3: #199e70;
+    --nat: #8f8e88; --ref: #c3c2b7; --nat-dot: rgba(143,142,136,0.32); --iso: rgba(195,194,183,0.35);
+    --warn-bg: #3a2e14; --warn-tx: #f0c46a;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --surface-2: #232321;
+  --text: #f0efec; --text-2: #c3c2b7; --text-3: #94938c;
+  --border: rgba(240,239,236,0.10); --border-2: rgba(240,239,236,0.20);
+  --grid: rgba(240,239,236,0.08);
+  --u1: #3987e5; --u2: #d95926; --u3: #199e70;
+  --nat: #8f8e88; --ref: #c3c2b7; --nat-dot: rgba(143,142,136,0.32); --iso: rgba(195,194,183,0.35);
+  --warn-bg: #3a2e14; --warn-tx: #f0c46a;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", system-ui, sans-serif; font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 20px 16px 48px; }
+h1 { font-size: 20px; font-weight: 600; margin: 0 0 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.badge { font-size: 11px; font-weight: 600; color: var(--text-2); border: 1px solid var(--border-2); border-radius: 999px; padding: 1px 8px; line-height: 1.6; }
+.n { font-family: var(--num); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+.src { font-size: 11px; color: var(--text-3); margin: 10px 0 0; padding-top: 8px; border-top: 1px dashed var(--border); }
+.src a, .foot a { color: inherit; }
+.foot { font-size: 12px; color: var(--text-3); border-top: 1px solid var(--border); margin-top: 8px; padding-top: 14px; }
+.foot p { margin: 0 0 8px; }
+.foot .disc { color: var(--text-2); }
+.tabbar { display: none; }
+.sub { color: var(--text-2); font-size: 13px; margin: 0 0 16px; }
+.filters { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: flex-end; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 16px; }
+@media (min-width: 1024px) { .filters { position: sticky; top: 0; z-index: 5; } }
+label.f, .f { display: flex; flex-direction: column; font-size: 12px; color: var(--text-2); gap: 2px; }
+input, select, button { font: inherit; font-size: 14px; color: var(--text); background: var(--surface); border: 1px solid var(--border-2); border-radius: var(--radius); height: 36px; padding: 0 10px; }
+button { cursor: pointer; }
+button:hover { background: var(--surface-2); }
+.unibox { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; align-content: flex-start; min-height: 36px; }
+.uchip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 4px 0 10px; border: 1px solid var(--border-2); border-radius: 999px; font-size: 14px; color: var(--text); background: var(--surface); }
+.uchip .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.uchip button { border: 0; height: 26px; width: 26px; padding: 0; border-radius: 50%; font-size: 16px; line-height: 1; color: var(--text-2); }
+.uchip { padding-left: 2px; }
+.uchip .star { font-size: 15px; color: var(--text-3); }
+.uchip .star[aria-pressed="true"] { color: var(--text); }
+.uchip.is-my { border-color: var(--text); font-weight: 600; }
+.myhint { font-size: 12px; color: var(--text-3); }
+#uniInput { width: 210px; }
+.combo { position: relative; display: inline-block; }
+.sugg { position: absolute; top: calc(100% + 4px); left: 0; z-index: 20; width: 300px; max-height: 300px; overflow-y: auto; background: var(--surface); border: 1px solid var(--border-2); border-radius: var(--radius); box-shadow: 0 6px 20px rgba(0,0,0,0.12); padding: 4px; margin: 0; list-style: none; }
+.sugg li button { display: flex; justify-content: space-between; gap: 10px; width: 100%; height: auto; min-height: 38px; padding: 6px 10px; border: 0; border-radius: 6px; background: none; text-align: left; font-size: 14px; }
+.sugg li button:hover, .sugg li button.act { background: var(--surface-2); }
+.sugg li button small { color: var(--text-3); font-size: 12px; white-space: nowrap; }
+.sugg .none { padding: 8px 10px; font-size: 13px; color: var(--text-3); }
+.sugg .grp { padding: 8px 10px 2px; font-size: 11px; font-weight: 600; color: var(--text-3); }
+.seg { display: inline-flex; border: 1px solid var(--border-2); border-radius: var(--radius); overflow: hidden; height: 36px; }
+.seg button { border: 0; border-radius: 0; height: 34px; }
+.seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chips button { height: 30px; font-size: 13px; padding: 0 10px; border-radius: 999px; }
+.chips button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; min-width: 0; }
+.card h2 { font-size: 15px; font-weight: 600; margin: 0; }
+.card .head2 { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.card .note { font-size: 12px; color: var(--text-3); margin: 2px 0 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--text-2); margin: 6px 0 4px; }
+.legend .k { display: inline-flex; align-items: center; gap: 5px; }
+.legend svg { flex: none; }
+.chart { position: relative; height: 290px; }
+.chart.sm { height: 240px; }
+.chart.sq { height: 360px; }
+details summary { cursor: pointer; font-size: 13px; color: var(--text-2); margin-top: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); }
+th { color: var(--text-2); font-weight: 500; }
+th .sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
+.tablewrap { overflow-x: auto; }
+.tablewrap.scroll { max-height: 480px; overflow-y: auto; }
+.tablewrap.scroll th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
+.cmp td.big { font-family: var(--num); font-size: 19px; font-weight: 600; color: var(--text); }
+.cmp td:last-child:not(:first-child) { font-family: var(--num); font-size: 15px; }
+.cmp td small { display: block; font-size: 11px; color: var(--text-3); font-weight: 400; }
+.banner { background: var(--warn-bg); color: var(--warn-tx); border-radius: var(--radius); padding: 8px 12px; font-size: 13px; margin-bottom: 12px; }
+.muted { color: var(--text-3); }
+.empty { color: var(--text-3); font-size: 13px; padding: 24px 0; text-align: center; }
+.auth { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.auth input { width: 180px; }
+.filterbar { display: none; }
+.lg-short { display: none; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 8px 0 10px; overflow-x: auto; }
+.tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; height: 38px; background: none; color: var(--text-2); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.tabs button .sw { width: 9px; height: 9px; border-radius: 50%; }
+.tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--text); font-weight: 600; }
+.prow { cursor: pointer; }
+.prow:hover td, .pcard:hover { background: var(--surface-2); }
+.prow.sel td { background: var(--surface-2); }
+.prow.sel td:first-child, .pcard.sel { box-shadow: inset 3px 0 0 var(--text); background: var(--surface-2); }
+.plist { display: none; }
+.pcard { border-top: 1px solid var(--border); padding: 10px 8px; cursor: pointer; border-radius: 6px; }
+.pcard .top { display: flex; justify-content: space-between; gap: 8px; font-weight: 600; }
+.pcard .top span:last-child { font-variant-numeric: tabular-nums; }
+.pcard .recs { font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.pcard .dl { font-size: 12px; color: var(--text-3); }
+.pdetail { scroll-margin-top: 130px; border: 1px solid var(--border-2); border-radius: 12px; padding: 12px 14px; margin: 4px 0 12px; }
+.pdetail .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.pdetail .head b { font-size: 16px; }
+.pdetail .head button { height: 32px; font-size: 13px; }
+.pkpi { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--text-2); margin: 4px 0 6px; font-variant-numeric: tabular-nums; }
+.pkpi b { color: var(--text); font-family: var(--num); font-size: 19px; font-weight: 600; margin-left: 2px; }
+.pcard .top span:last-child { font-family: var(--num); font-size: 16px; }
+.hint { font-size: 12px; color: var(--text-3); margin: 0 0 8px; }
+.viewnav { display: inline-flex; margin: 0 0 14px; }
+.viewnav button { padding: 0 16px; }
+.afilters { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: flex-end; }
+.chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); }
+.chk input { height: 18px; width: 18px; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 26px; margin: 8px 0 6px; font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.stats > span { display: flex; flex-direction: column; line-height: 1.3; }
+.stats b { color: var(--text); font-family: var(--num); font-size: 24px; font-weight: 600; line-height: 1.15; }
+.verdict { font-size: 14px; color: var(--text); margin: 4px 0 8px; }
+.mine { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+.mine input { width: 120px; }
+.more { width: 100%; margin-top: 8px; }
+.stats small { font-size: 11px; }
+details.setting { margin-top: 10px; }
+details.setting > summary { font-size: 13px; }
+.verdict { line-height: 1.75; }
+
+ 
+button.primary { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 600; }
+button.primary:hover { opacity: 0.9; background: var(--text); }
+button:disabled { opacity: 0.5; cursor: default; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.edtabs { margin: 0 0 12px; }
+.edtabs button { padding: 0 14px; }
+.edlist { margin-top: 8px; }
+.edcrew { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
+.edcrew .h { display: flex; justify-content: space-between; align-items: center; gap: 6px 10px; flex-wrap: wrap; }
+.edcrew .h b { font-size: 15px; }
+.edcrew .meta { font-size: 12px; color: var(--text-3); }
+.edcrew .who { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+.tag { font-size: 12px; border-radius: 999px; padding: 1px 9px; border: 1px solid var(--border-2); color: var(--text-2); white-space: nowrap; }
+.tag.todo { background: var(--warn-bg); color: var(--warn-tx); border-color: transparent; }
+.tag.done { background: var(--surface-2); color: var(--text); }
+.seats { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 6px 8px; align-items: center; margin-top: 10px; }
+.seats .lbl { font-family: var(--num); font-weight: 600; font-size: 16px; text-align: center; }
+.seats select { width: 100%; }
+.newp { grid-column: 2; display: flex; gap: 6px; flex-wrap: wrap; }
+.newp input { width: 160px; }
+.newp input.yr { width: 110px; }
+.ehead, .erow { display: grid; grid-template-columns: 140px minmax(170px, 1.5fr) 96px 104px 70px 100px minmax(80px, 1fr) 40px; gap: 6px; align-items: center; }
+.ehead { font-size: 12px; color: var(--text-2); padding: 4px 0; border-bottom: 1px solid var(--border-2); }
+.erow { padding: 6px 0; border-bottom: 1px solid var(--border); }
+.erow input, .erow select { width: 100%; min-width: 0; }
+.erow .el { display: none; }
+.erow.err { background: var(--warn-bg); }
+.erow .emsg { grid-column: 1 / -1; color: var(--warn-tx); font-size: 12px; }
+.erow .rm { padding: 0; width: 36px; }
+textarea { font: inherit; font-size: 14px; width: 100%; min-height: 110px; border: 1px solid var(--border-2); border-radius: var(--radius); padding: 8px 10px; background: var(--surface); color: var(--text); }
+.ok-msg { background: var(--surface-2); border-radius: var(--radius); padding: 8px 12px; font-size: 13px; margin: 8px 0; }
+.addp { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.addp input { width: 170px; }
+.addp input.yr { width: 110px; }
+td.act { text-align: right; }
+td.act button { height: 30px; font-size: 13px; }
+.lf { text-align: left !important; }
+tr.editrow td { background: var(--surface-2); text-align: left; white-space: normal; }
+td.act { white-space: nowrap; }
+
+ 
+@media (max-width: 640px) {
+  body { font-size: 14px; }
+  .wrap { padding: 12px 12px 40px; }
+  h1 { font-size: 17px; }
+  .sub { font-size: 12px; margin-bottom: 10px; }
+  .filterbar { display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 6; background: var(--bg); padding: 8px 0; margin: 0 0 8px; border-bottom: 1px solid var(--border); }
+  .filterbar .sum { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .filterbar button { height: 36px; flex: none; }
+  .filters { display: none; padding: 12px; gap: 10px; }
+  .filters.open { display: grid; grid-template-columns: 1fr 1fr; }
+  .filters > * { min-width: 0; }
+  .filters > .wide { grid-column: 1 / -1; }
+  input, select, button { font-size: 16px; height: 44px; }
+  #uniInput, select { width: 100%; }
+  .combo { display: block; width: 100%; }
+  .sugg { width: 100%; max-height: 50vh; }
+  .sugg li button { min-height: 44px; font-size: 15px; }
+  .uchip { height: 36px; font-size: 15px; }
+  .uchip button { height: 32px; width: 32px; }
+  .seg { height: 44px; width: 100%; }
+  .seg button { flex: 1; height: 42px; }
+  .chips button { height: 34px; font-size: 14px; }
+  .grid2 { grid-template-columns: 1fr; gap: 0; }
+  .card { padding: 12px; margin-bottom: 12px; }
+  .lg-long { display: none; }
+  .lg-short { display: inline; }
+  .chart { height: 260px; }
+  .chart.sm { height: 220px; }
+  .chart.sq { height: 330px; }
+  .ptable { display: none; }
+  .plist { display: block; }
+  .pdetail { padding: 10px; scroll-margin-top: 64px; }
+  .pdetail .head button { height: 40px; }
+  .auth input { flex: 1; width: auto; }
+  .card .head2 .seg { width: auto; }
+   
+  .viewnav { display: none; }
+  .wrap { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--surface); border-top: 1px solid var(--border-2); padding: 0 8px env(safe-area-inset-bottom); }
+  .tabbar button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 58px; border: 0; border-radius: 0; background: none; color: var(--text-3); font-size: 11px; position: relative; }
+  .tabbar button svg { width: 22px; height: 22px; }
+  .tabbar button[aria-pressed="true"] { color: var(--text); font-weight: 600; }
+  .tabbar button[aria-pressed="true"]::before { content: ""; position: absolute; top: 0; left: 30%; right: 30%; height: 2px; border-radius: 0 0 2px 2px; background: var(--text); }
+  .stats { gap: 8px 18px; }
+  .stats b { font-size: 21px; }
+  .cmp td.big { font-size: 16px; }
+  .afilters { display: grid; grid-template-columns: 1fr 1fr; }
+  .afilters > .wide { grid-column: 1 / -1; }
+  .afilters > label.f:has(.seg) { grid-column: 1 / -1; }
+  .afilters .seg button { white-space: nowrap; font-size: 14px; padding: 0 6px; }
+  .afilters select { width: 100%; }
+  .mine input { flex: 1; width: auto; }
+  .card .head2 .seg button { white-space: nowrap; font-size: 14px; padding: 0 12px; }
+  .cmp th, .cmp td { padding: 6px 4px; }
+  .cmp td small { display: none; }
+  .cmp th { font-size: 12px; white-space: nowrap; min-width: 0; }
+  .cmp th .sw { margin-right: 3px; }
+  .cmp td:first-child { white-space: normal; min-width: 56px; font-size: 12px; }
+  .ehead { display: none; }
+  .erow { grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 0; }
+  .erow .wide2 { grid-column: 1 / -1; }
+  .erow label { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .erow .el { display: block; font-size: 12px; color: var(--text-2); }
+  .erow .rm { width: auto; grid-column: 1 / -1; justify-self: end; height: 36px; font-size: 14px; padding: 0 14px; }
+  .erow label:has(input[data-k="memo"]) { grid-column: 1 / -1; }
+  .edtabs button { font-size: 14px; white-space: nowrap; padding: 0 6px; }
+  .newp input, .newp input.yr { flex: 1; width: auto; min-width: 0; }
+  .addp .f { flex: 1 1 100%; }
+  .addp input, .addp input.yr, .addp select { width: 100%; }
+  .edtabs { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ROWINGエルゴ <span class="badge" title="日本ローイング協会の公式ツールではありません">非公式</span></h1>
+  <p class="sub" id="rule">読み込み中…</p>
+  <div class="seg viewnav" id="viewNav" role="tablist"><button type="button" data-v="uni" aria-pressed="true">大学別</button><button type="button" data-v="ana" aria-pressed="false">戦績とエルゴ</button><button type="button" data-v="edit" aria-pressed="false">入力</button></div>
+
+  <div id="viewUni">
+
+  <div class="filterbar"><span class="sum" id="fsum">読み込み中…</span><button type="button" id="ftoggle" aria-expanded="false" aria-controls="filters">絞り込み</button></div>
+  <div class="filters" id="filters" role="search">
+    <div class="f wide">大学（最大3校・★＝自大学）
+      <div class="unibox"><span id="uchips" style="display:contents"></span><span class="combo" id="uniCombo"><input id="uniInput" placeholder="大学を追加" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="uniSugg" aria-autocomplete="list"><ul class="sugg" id="uniSugg" role="listbox" hidden></ul></span></div>
+    </div>
+    <label class="f">性別<span class="seg" id="sex"><button type="button" data-v="男子" aria-pressed="true">男子</button><button type="button" data-v="女子" aria-pressed="false">女子</button></span></label>
+    <label class="f">区分<select id="cat"><option>全体</option><option>軽量級</option><option>オープン</option></select></label>
+    <label class="f">年度（から）<select id="from"></select></label>
+    <label class="f">年度（まで）<select id="to"></select></label>
+    <div class="chips wide" id="quick" aria-label="年度の範囲"><button type="button" data-n="0" aria-pressed="true">全期間</button><button type="button" data-n="10" aria-pressed="false">直近10年</button><button type="button" data-n="5" aria-pressed="false">直近5年</button></div>
+  </div>
+
+  <div id="msg"></div>
+
+  <div class="card">
+    <h2 id="cmpTitle">比較</h2>
+    <p class="note">選んだ期間のうち、いちばん新しい年度のインドアローイング（2000m）の記録です。</p>
+    <div class="tablewrap"><table class="cmp" id="tCompare"></table></div>
+    <p class="src" data-src="indoor"></p>
+  </div>
+
+  <div class="card">
+    <h2>年度ごとの推移（2000m）</h2>
+    <p class="note">冬のインドアローイングの平均タイムです。<br>グラフは下にいくほど速くなります。出場が3名未満の年は薄く表示しています。</p>
+    <div class="legend" id="lgTrend"></div>
+    <div class="chart"><canvas id="cTrend" aria-label="年度ごとの推移"></canvas></div>
+    <details><summary>数値を表で見る</summary><div class="tablewrap" id="tTrend"></div></details>
+    <p class="src" data-src="indoor,final"></p>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>年齢ごとの平均</h2>
+      <p class="note">選んだ期間の記録をまとめた平均です。<br>18〜19才が、おおむね1年生です。</p>
+      <div class="legend" id="lgAge"></div>
+      <div class="chart sm"><canvas id="cAge" aria-label="年齢別の平均"></canvas></div>
+      <details><summary>数値を表で見る</summary><div class="tablewrap" id="tAge"></div></details>
+      <p class="src" data-src="indoor"></p>
+    </div>
+    <div class="card">
+      <h2>1年あたりの伸び</h2>
+      <p class="note">同じ選手が次の年も出たとき、何秒速くなったかの平均です。<br>すべての年・区分をまとめています。</p>
+      <div class="legend" id="lgGrowth"></div>
+      <div class="chart sm"><canvas id="cGrowth" aria-label="1年あたりの伸び"></canvas></div>
+      <details><summary>数値を表で見る</summary><div class="tablewrap" id="tGrowth"></div></details>
+      <p class="src" data-src="indoor"></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="head2">
+      <h2 id="bodyTitle">体重とエルゴ</h2>
+      <span class="seg" id="bodyMode"><button type="button" data-v="erg" aria-pressed="true">体重×エルゴ</button><button type="button" data-v="hw" aria-pressed="false">身長×体重</button></span>
+    </div>
+    <p class="note" id="bodyNote"></p>
+    <details id="bodyHow" style="margin:-4px 0 6px"><summary>体重補正タイムとは</summary>
+      <p class="note">体重の差をならして比べるための、Concept2社の換算です。<br>
+        補正タイム ＝ 実際のタイム ×（体重lb ÷ 270）^0.222<br>
+        実際のタイムより速い値になるので、選手どうし・大学どうしの比較に使ってください。<br>
+        体重は大会のとき、エルゴはその前の冬の記録なので、時期が数か月ずれます。<br>
+        JARAの選考で使う「体重別ErgoIDT%」とは計算が違います。</p>
+    </details>
+    <div class="legend" id="lgBody"></div>
+    <div class="chart sq"><canvas id="cBody" aria-label="体重とエルゴの関係"></canvas></div>
+    <div class="tablewrap" id="tBody" style="margin-top:8px"></div>
+    <p class="src" data-src="race,indoor"></p>
+  </div>
+
+  <div class="card" id="peopleCard" hidden>
+    <h2>個人の記録（関係者だけに表示）</h2>
+    <p class="note">氏名の一部を伏せています。外部には共有しないでください。<br>速い順に並んでいます。<span id="pCount"></span></p>
+    <div class="tabs" id="ptabs" role="tablist"></div>
+    <p class="hint">選手を押すと、記録の推移がグラフで出ます。</p>
+    <div class="pdetail" id="pDetail" hidden>
+      <div class="head"><b id="pdName"></b><button type="button" id="pdClose">閉じる</button></div>
+      <div class="pkpi" id="pdKpi"></div>
+      <div class="legend" id="lgPerson"></div>
+      <div class="chart sm"><canvas id="cPerson" aria-label="選手の記録の推移"></canvas></div>
+      <details><summary>数値を表で見る</summary><div class="tablewrap" id="tPerson"></div></details>
+    </div>
+    <div class="tablewrap scroll ptable" id="tPeople"></div>
+    <div class="plist" id="lPeople"></div>
+    <p class="src" data-src="indoor"></p>
+  </div>
+
+  <div class="card" id="rankCard" hidden>
+    <h2 id="rkTitle">大学内のランキング（関係者だけに表示）</h2>
+    <p class="note">選手ごとに、その年度でいちばん速い記録を並べます。歴代は1人1行（その人のいちばん速い記録）です。<br>その大学の入力用の合言葉で開くと、氏名をすべて表示します。</p>
+    <div class="tabs" id="rkTabs" role="tablist"></div>
+    <div class="afilters">
+      <label class="f">年度<select id="rkSeason"></select></label>
+      <label class="f">種目<span class="seg" id="rkMetric"><button type="button" data-v="2000m" aria-pressed="true">2000m</button><button type="button" data-v="6000m" aria-pressed="false">6000m</button><button type="button" data-v="20分" aria-pressed="false">20分</button></span></label>
+      <label class="f">記録の種類<span class="seg" id="rkSrc"><button type="button" data-v="a" aria-pressed="true">自主測定も使う</button><button type="button" data-v="o" aria-pressed="false">公式記録だけ</button></span></label>
+    </div>
+    <p class="verdict" id="rkNote"></p>
+    <div class="tablewrap" id="tRank" style="margin-top:4px"></div>
+    <p class="src" data-src="indoor,self"></p>
+  </div>
+
+  <div class="card">
+    <h2>関係者の方へ</h2>
+    <p class="note">参加大学の関係者は、閲覧用の合言葉を入れると個人の記録とランキングが見られます。<br>自分の大学の入力用の合言葉を入れると、その大学のランキングは氏名をすべて表示します。</p>
+    <div class="auth"><input id="code" type="password" placeholder="合言葉" autocomplete="off"><button type="button" id="codeBtn">表示する</button></div>
+  </div>
+  </div>
+
+  <div id="viewAna" hidden>
+    <div class="card">
+      <h2>大学・大会・種目を選ぶ</h2>
+      <div class="afilters" style="margin-top:8px">
+        <label class="f">大学<select id="aMyUni"></select></label>
+        <label class="f">大会<select id="aType"></select></label>
+        <label class="f wide">種目<select id="aEvent"></select></label>
+      </div>
+      <details class="setting"><summary>詳しい設定（年の範囲・使う記録など）</summary>
+        <div class="afilters" style="margin-top:8px">
+          <label class="f">年（から）<select id="aFrom"></select></label>
+          <label class="f">年（まで）<select id="aTo"></select></label>
+          <label class="f">エルゴの種目<select id="aMetric"><option value="2000">2000m</option><option value="6000">6000m</option><option value="20min">20分（500mペース）</option></select></label>
+          <label class="f">使う記録<span class="seg" id="aPick"><button type="button" data-v="b" aria-pressed="true">いちばん速い記録</button><button type="button" data-v="l" aria-pressed="false">大会直前の記録</button></span></label>
+          <label class="f">記録の種類<span class="seg" id="aSrc"><button type="button" data-v="a" aria-pressed="true">自主測定も使う</button><button type="button" data-v="o" aria-pressed="false">公式記録だけ</button></span></label>
+          <label class="f">対象のクルー<span class="seg" id="aQual"><button type="button" data-v="strict" aria-pressed="false">全員分かるクルー</button><button type="button" data-v="wide" aria-pressed="true">4分の3以上</button></span></label>
+        </div>
+        <label class="chk" style="margin-top:10px"><input type="checkbox" id="aAll">予選・準決勝で敗退したクルーも含める</label>
+        <p class="note" style="margin-top:8px">
+          ・公式記録は、大会前に開かれた直近2回のインドアローイングの記録です（中止の年は数えません）。<br>
+          ・自主測定は、大会前12か月以内の記録です。6000mと20分は、自主測定の記録だけです。<br>
+          ・「対象のクルー」は、漕手のエルゴ記録が何人分かっているクルーを使うかです。<br>
+          ・年の範囲は②〜④に使います。①はすべての年を表示します。
+        </p>
+      </details>
+    </div>
+    <div id="aMsg"></div>
+
+    <div class="card" id="teamCard">
+      <h2 id="tmTitle">① 戦績の推移</h2>
+      <p class="note">
+        「優勝との差」は、そのクルーの大会中でいちばん速いタイムが、優勝クルーの大会中でいちばん速いタイムより何％遅かったかです（予選・敗者復活・準決勝・決勝のどれでも、それぞれの最速で比べます）。小さいほど上位です。<br>
+        点線は、その年に決勝A・決勝Bへ進んだクルーのうち、いちばん差が大きかったクルーです（進出の目安）。
+      </p>
+      <div class="stats" id="tmStats"></div>
+      <p class="verdict" id="tmVerdict"></p>
+      <div class="legend" id="lgTm"></div>
+      <div class="chart"><canvas id="cTm" aria-label="優勝との差の年ごとの推移"></canvas></div>
+      <div class="tablewrap ptable" id="tTm" style="margin-top:8px"></div>
+      <div class="plist" id="lTm"></div>
+      <p class="src" data-src="race,indoor,self"></p>
+    </div>
+
+    <div class="card">
+      <h2 id="anaTitle">② エルゴと成績の関係</h2>
+      <p class="note">
+        <span id="anaX">横はクルーの平均エルゴ、縦は優勝との差です。</span><br>
+        左上にいるほど、エルゴが速く、成績も良いクルーです。点を押すと大会と順位が出ます。
+      </p>
+      <div class="stats" id="aStats"></div>
+      <p class="verdict" id="aVerdict"></p>
+      <p class="verdict" id="mineVerdict"></p>
+      <div class="legend" id="lgAna"></div>
+      <div class="chart sq"><canvas id="cAna" aria-label="クルー平均エルゴと優勝との差の散布図"></canvas></div>
+      <p class="src" data-src="race,indoor,self"></p>
+    </div>
+
+    <div class="card">
+      <h2>③ 目標までの距離</h2>
+      <p class="note">目標の決勝に進んだクルーが、どのくらいのエルゴだったかを見ます。</p>
+      <div class="afilters"><label class="f wide">目標<select id="aTarget"></select></label></div>
+      <div class="stats" id="rStats"></div>
+      <p class="verdict" id="rVerdict"></p>
+      <div class="mine"><span class="chk" id="aMineLabel">予定しているクルーの平均</span><input id="aMine" placeholder="6:35.0" inputmode="decimal" autocomplete="off"><button type="button" id="aMineBtn">位置を見る</button></div>
+      <p class="verdict" id="rMine"></p>
+      <div class="legend" id="lgRev"></div>
+      <div class="chart sm"><canvas id="cRev" aria-label="目標に届いたクルーと届かなかったクルーの平均エルゴ"></canvas></div>
+      <details><summary>5秒ごとの到達率を表で見る</summary><div class="tablewrap" id="tRev"></div></details>
+      <p class="src" data-src="race,indoor,self"></p>
+    </div>
+
+    <div class="card" id="cmpCard">
+      <h2>④ どの数字が成績とつながるか</h2>
+      <p class="note">
+        2000m・6000m・20分の3つがそろったクルーで、どの数字が成績と一番つながっているかを比べます。<br>
+        r が大きいほど、その数字が速いクルーほど上位、という傾向がはっきりしています。
+      </p>
+      <div class="stats" id="cmpStats"></div>
+      <p class="verdict" id="cmpVerdict"></p>
+      <div class="tablewrap" id="tCmpM"></div>
+      <p class="src" data-src="race,indoor,self"></p>
+    </div>
+  </div>
+
+  <div id="viewEdit" hidden>
+    <div class="card" id="edLogin">
+      <h2>入力（参加大学の担当者向け）</h2>
+      <p class="note">大学ごとの「入力用の合言葉」で開きます。閲覧用の合言葉とは別です。<br>入力した内容は、毎朝の自動更新か「今すぐ反映する」ボタンで画面に反映されます。</p>
+      <div class="afilters">
+        <label class="f">大学<select id="edUni"></select></label>
+        <label class="f">入力用の合言葉<input id="edCode" type="password" autocomplete="off"></label>
+        <div class="f"><span>&nbsp;</span><button type="button" class="primary" id="edOpen">開く</button></div>
+      </div>
+    </div>
+    <div id="edMsg"></div>
+    <div id="edBody" hidden>
+      <div class="card">
+        <h2>入力した内容を反映する</h2>
+        <p class="note">入力した内容は、毎朝の自動更新で画面に反映されます。<br>すぐに確かめたいときは、下のボタンを押してください（1〜2分かかります）。</p>
+        <div class="btnrow"><button type="button" class="primary" id="edRefresh">今すぐ反映する</button><span class="muted" id="edRefreshNote" style="font-size:12px"></span></div>
+      </div>
+      <div class="seg edtabs" id="edTabs"><button type="button" data-v="crew" aria-pressed="true">大会メンバー</button><button type="button" data-v="erg" aria-pressed="false">エルゴ記録</button><button type="button" data-v="roster" aria-pressed="false">選手名簿</button></div>
+
+      <div id="edCrew">
+        <div class="card">
+          <h2 id="edCrewTitle">大会のメンバー</h2>
+          <p class="note">結果に選手名が載っていない大会（おおむね2022年以前）に、乗っていた選手を入れます。<br>候補には、JARAのインドアローイングに出た部員と、選手名簿の選手が出ます。舵手（C）は記録として残すだけで、エルゴの計算には使いません。<br>候補に出る入学年度は、大会のときの年齢から計算した目安です。浪人・留年・大学院生などはずれることがあるので、「選手名簿」で直してください。</p>
+          <div class="afilters"><label class="f wide">大会<select id="edT"></select></label></div>
+          <div class="edlist" id="edCrews"></div>
+        </div>
+      </div>
+
+      <div id="edErg" hidden>
+        <div class="card">
+          <h2>エルゴ記録を追加する</h2>
+          <p class="note">部内で測った記録を入れます。<br>2000m・6000m は「分:秒」（例 6:42.3）、20分は距離（例 5320）で入力します。「条件」にはレート制限などを選びます。</p>
+          <div class="ehead"><span>測定日</span><span>選手</span><span>種目</span><span>記録</span><span>体重kg</span><span>条件</span><span>メモ</span><span></span></div>
+          <div id="edRows"></div>
+          <div class="btnrow"><button type="button" id="edAddRow">行を追加</button><button type="button" class="primary" id="edSaveErgs">保存する</button><span class="muted" id="edErgNote" style="font-size:12px"></span></div>
+          <details style="margin-top:10px"><summary>Excelやスプレッドシートからまとめて貼り付ける</summary>
+            <p class="note">列の順：測定日・氏名・種目・記録・体重・条件・メモ（体重から後ろは省略できます）。<br>「読み込む」を押すと上の表に入ります。確かめてから「保存する」を押してください。</p>
+            <textarea id="edPaste" placeholder="2025/11/15&#9;新潟 太郎&#9;2000m&#9;6:42.3&#9;72.5&#9;制限なし"></textarea>
+            <div class="btnrow"><button type="button" id="edPasteBtn">読み込む</button></div>
+          </details>
+        </div>
+        <div class="card">
+          <h2>入力済みの記録</h2>
+          <p class="note">「直す」を押すと、その記録を書き換えられます。選手で絞り込むこともできます。</p>
+          <div class="afilters"><label class="f wide">選手で絞り込む<select id="edErgWho"></select></label></div>
+          <div id="edErgPanel"></div>
+          <div class="tablewrap ptable" id="edErgList" style="margin-top:8px"></div>
+          <div class="plist" id="edErgCards" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <div id="edRoster" hidden>
+        <div class="card">
+          <h2>選手名簿</h2>
+          <p class="note">入力のときに候補に出す選手です。<br>JARAのインドアローイングに出た部員は、登録しなくても候補に出ます。出ていない部員は、ここで追加してください。</p>
+          <div class="addp">
+            <label class="f">氏名<input id="edPName" placeholder="新潟 太郎" autocomplete="off"></label>
+            <label class="f">性別<select id="edPSex"><option>男子</option><option>女子</option></select></label>
+            <label class="f">入学年度<input id="edPEntry" class="yr" inputmode="numeric" placeholder="2023" autocomplete="off"></label>
+            <button type="button" class="primary" id="edPAdd">名簿に追加</button>
+          </div>
+          <div id="edPPanel"></div>
+          <div class="tablewrap ptable" id="edPList" style="margin-top:12px"></div>
+          <div class="plist" id="edPCards" style="margin-top:8px"></div>
+          <p class="note" id="edPNote" style="margin-top:8px"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <p class="disc"><b>非公式のツールです。</b>JARA（日本ローイング協会）が公開している大会結果とインドアローイングの記録をもとに、独自に集計しています。JARAとは関係ありません。<br>氏名の照合などに誤りがあることがあります。<b>正式な記録は、JARAの発表で確認してください。</b></p>
+    <p id="foot"></p>
+    <p id="footOp"></p>
+  </footer>
+</div>
+
+<nav class="tabbar" id="tabbar" aria-label="画面の切り替え">
+  <button type="button" data-v="uni" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10 12 4l9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/></svg><span>大学別</span></button>
+  <button type="button" data-v="ana" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16h16"/><circle cx="9" cy="14" r="1.3" fill="currentColor"/><circle cx="12.5" cy="11" r="1.3" fill="currentColor"/><circle cx="16" cy="9.5" r="1.3" fill="currentColor"/><circle cx="18" cy="6" r="1.3" fill="currentColor"/><path d="M7 16.5 19 5" stroke-dasharray="2 2.5"/></svg><span>戦績とエルゴ</span></button>
+  <button type="button" data-v="edit" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg><span>入力</span></button>
+</nav>
+
+<script>
+ 
+(function () {
+  function show(msg) {
+    var w = document.querySelector('.wrap'); if (!w) return;
+    var el = document.getElementById('fatal');
+    if (!el) { el = document.createElement('div'); el.id = 'fatal'; el.className = 'banner'; w.insertBefore(el, w.children[2] || null); }
+    el.textContent = '画面の表示でエラーが起きました：' + msg + '（この画面を撮って管理者に送ってください）';
+  }
+  window.__rowingFatal = show;
+   
+  var here = location.href.split('#')[0].split('?')[0];
+  var mine = function (src) { return !src || String(src).split('#')[0].split('?')[0] === here; };
+  var where = function (stack) { var m = String(stack || '').match(/:(\d+):(\d+)\)?\s*$/m); return m ? '／' + m[1] + '行目' : ''; };
+  window.addEventListener('error', function (e) {
+    if (e.target && e.target !== window) return;
+    if (!mine(e.filename) || e.message === 'Script error.') return;
+    show((e.message || String(e)) + (e.lineno ? '／' + e.lineno + '行目' : ''));
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e.reason, st = r && r.stack ? String(r.stack) : '';
+    if (st && st.indexOf(here) < 0 && /https?:/.test(st)) return;
+    show(((r && r.message) || String(r)) + where(st.split('\n')[1]));
+  });
+})();
+</script>
+<script>
+
+
+window.__chartReady = new Promise(function (resolve) {
+  var urls = ['https:\/\/cdnjs.cloudflare.com\/ajax\/libs\/Chart.js\/4.4.1\/chart.umd.min.js',
+    'https:\/\/cdn.jsdelivr.net\/npm\/chart.js@4.4.1\/dist\/chart.umd.min.js',
+    'https:\/\/unpkg.com\/chart.js@4.4.1\/dist\/chart.umd.min.js'];
+  var i = 0;
+  function next() {
+    if (window.Chart) { resolve(true); return; }
+    if (i >= urls.length) { resolve(false); return; }
+     
+    var def = window.define, finished = false;
+    try { window.define = undefined; } catch (e) {}
+    var el = document.createElement('script');
+    el.src = urls[i++];
+    var timer = setTimeout(done, 15000);
+    function done() {
+      if (finished) return;
+      finished = true; clearTimeout(timer);
+      try { window.define = def; } catch (e) {}
+      if (window.Chart) resolve(true); else next();
+    }
+    el.onload = done; el.onerror = done;
+    (document.head || document.documentElement).appendChild(el);
+  }
+  next();
+});
+</script>
+<script>
+ 
+(() => {
+
+
+const API_URL_MANUAL = '';
+ 
+const API_URL_FROM_GAS = 'https:\/\/script.google.com\/macros\/s\/AKfycbyzSYQTqiDTojW0Zux7iJN6OBQoNd4Z-4iiSZeHbkYd8WLJWekFy0pHqtT4KdWqvHKIVA\/exec';
+
+
+const STATIC_DATA = 'data/';
+ 
+const ON_GAS = /(^|\.)(googleusercontent\.com|script\.google\.com)$/.test(location.hostname) || !!(window.google && window.google.script);
+ 
+const STATIC = STATIC_DATA || (!ON_GAS && /^https?:$/.test(location.protocol) ? 'data/' : '');
+let API_URL = API_URL_MANUAL || (/^https?:/.test(API_URL_FROM_GAS) ? API_URL_FROM_GAS : '');
+ 
+const cfgReady = (STATIC && !API_URL)
+  ? fetch(STATIC + 'config.json?t=' + Math.floor(Date.now() / 300000)).then(r => (r.ok ? r.json() : {})).then(c => { if (c && /^https?:/.test(c.api || '')) API_URL = c.api; }).catch(() => {})
+  : Promise.resolve();
+ 
+const OPERATOR = { name: '', contact: '' };
+ 
+const SOURCES = {
+  indoor: ['JARA 全国インドアローイング大会の記録', 'https:\/\/www.jara.or.jp/mr'],
+  race: ['JARA 大会結果（インカレ・全日本選手権・全日本新人・国スポ）', 'https:\/\/www.jara.or.jp/'],
+  final: ['JARA インカレ決勝Aの結果', 'https:\/\/www.jara.or.jp/'],
+  self: ['参加大学が入力した自主測定の記録', '']
+};
+
+const $ = id => document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt = v => { if (v == null || isNaN(v)) return '—'; const m = Math.floor(v / 60), s = v - m * 60; return m + ':' + (s < 10 ? '0' : '') + s.toFixed(1); };
+const sgn = v => (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v).toFixed(1);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+const MQ = matchMedia('(max-width: 640px)');
+const mob = () => MQ.matches;
+const UCOL = ['--u1', '--u2', '--u3'];
+ 
+const PREF_ORDER = ['北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+  '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県', '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県',
+  '鳥取県', '島根県', '岡山県', '広島県', '山口県', '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'];
+ 
+const REGIONS = ['北海道', '東北', '関東', '北信越', '東海', '近畿', '中国', '四国', '九州・沖縄'];
+const PREF_REGION = {};
+[[0, 1], [1, 7], [2, 14], [3, 20], [4, 24], [5, 30], [6, 35], [7, 39], [8, 47]].reduce((from, [ri, to]) => { PREF_ORDER.slice(from, to).forEach(p => { PREF_REGION[p] = REGIONS[ri]; }); return to; }, 0);
+['山梨県'].forEach(p => { PREF_REGION[p] = '関東'; });
+['新潟県', '富山県', '石川県', '福井県', '長野県'].forEach(p => { PREF_REGION[p] = '北信越'; });
+['岐阜県', '静岡県', '愛知県', '三重県'].forEach(p => { PREF_REGION[p] = '東海'; });
+const prefOf = n => ((S.base && S.base.prefs) || {})[n] || '';
+const regionOf = n => { const v = prefOf(n); return PREF_REGION[v] || (REGIONS.includes(v) ? v : ''); };
+const prefRank = n => { const r = REGIONS.indexOf(regionOf(n)), p = PREF_ORDER.indexOf(prefOf(n)); return (r < 0 ? 99 : r) * 100 + (p < 0 ? 99 : p); };
+const byNorth = (a, b) => prefRank(a) - prefRank(b) || a.localeCompare(b, 'ja');
+function groupedOptions(names, optFn) {
+  let html = '', cur = null;
+  names.slice().sort(byNorth).forEach(n => {
+    const p = regionOf(n) || '所在地が未設定';
+    if (p !== cur) { if (cur !== null) html += '</optgroup>'; html += `<optgroup label="${esc(p)}">`; cur = p; }
+    html += optFn(n);
+  });
+  return cur === null ? html : html + '</optgroup>';
+}
+const ucol = i => css(UCOL[i]);
+const median = arr => { if (!arr.length) return null; const s = arr.slice().sort((a, b) => a - b), n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; };
+ 
+const wf = kg => Math.pow(kg * 2.20462 / 270, 0.222);
+
+const API_LABEL = { unis: '大学の一覧', uni: '大学の記録', analysis: '戦績とエルゴのデータ', team: '大学の戦績' };
+ 
+function withTimeout(p, kind, ms) {
+  return new Promise((res, rej) => {
+    const t = setTimeout(() => rej(new Error((API_LABEL[kind] || 'データ') + 'の読み込みに時間がかかりすぎています。ページを開き直してください')), ms || 90000);
+    p.then(v => { clearTimeout(t); res(v); }, e => { clearTimeout(t); rej(e); });
+  });
+}
+function staticPath(kind, name, code) {
+  const ver = encodeURIComponent((S.base && S.base.builtAt) || '');
+  const id = n => S.base && S.base.ids ? S.base.ids[n] : '';
+  if (kind === 'unis') return STATIC + 'unis.json?t=' + Math.floor(Date.now() / 300000);
+  if (kind === 'analysis') return STATIC + 'analysis.json?v=' + ver;
+  if (kind === 'uni' && !code && id(name)) return STATIC + 'uni/' + id(name) + '.json?v=' + ver;
+  if (kind === 'team' && id(name)) return STATIC + 'team/' + id(name) + '.json?v=' + ver;
+  return '';
+}
+function api(kind, name, code) {
+  if (window.__DASH_MOCK__) return Promise.resolve(window.__DASH_MOCK__(kind, name, code));
+   
+  return cfgReady.then(() => {
+    const sp = STATIC ? staticPath(kind, name, code) : '';
+    if (!sp) return gasApi(kind, name, code);
+     
+    return withTimeout(fetch(sp).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }), kind)
+      .catch(() => { if (kind === 'unis') S.noStatic = true; return gasApi(kind, name, code); });
+  });
+}
+function gasApi(kind, name, code) {
+  const run = window.google && google.script && google.script.run;
+   
+  if (run && typeof run.getDashboardJson === 'function') {
+    return withTimeout(new Promise((res, rej) => google.script.run.withSuccessHandler(t => { try { res(typeof t === 'string' ? JSON.parse(t) : t); } catch (e) { rej(e); } })
+      .withFailureHandler(rej).getDashboardJson(kind, name || '', code || '')), kind);
+  }
+  if (run && typeof run.getDashboardData === 'function') {
+    return withTimeout(new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej).getDashboardData(kind, name || '', code || '')), kind);
+  }
+  if (!API_URL) return Promise.reject(new Error(STATIC
+    ? '公開用のデータ（data フォルダ）が見つかりません。GASのメニュー「今すぐ公開する」で書き出したGitHubのリポジトリを、このサーバーにつないでください。'
+    : 'データの取得先が設定されていません。index.html の API_URL_MANUAL に、WebアプリのURL（…/exec）を入れてください。'));
+  const q = new URLSearchParams({ api: kind }); if (name) q.set('name', name); if (code) q.set('code', code);
+  return withTimeout(fetch(API_URL + '?' + q.toString()).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(t => { try { return JSON.parse(t); } catch (e) { throw new Error('データではなくページが返りました。デプロイの「アクセスできるユーザー」が「全員」になっているか確認してください。'); } }), kind);
+}
+
+
+const S = { base: null, unis: [], my: store.get('rowing.myuni') || '', data: {},sex: '男子', body: 'erg', tab: 0, selKey: null, showAll: false, charts: {} };
+
+function chartDefaults() {
+  if (!window.Chart) return;
+  const d = Chart.defaults, t = d.plugins.tooltip;
+  d.color = css('--text-2'); d.font.family = getComputedStyle(document.body).fontFamily; d.font.size = mob() ? 11 : 12;
+  d.plugins.legend.display = false; d.maintainAspectRatio = false;
+  t.backgroundColor = css('--surface-2'); t.titleColor = css('--text'); t.bodyColor = css('--text'); t.borderColor = css('--border-2'); t.borderWidth = 1;
+  t.padding = mob() ? 8 : 6; t.bodyFont = { size: mob() ? 13 : 12 }; t.titleFont = { size: mob() ? 13 : 12, weight: '600' };
+  t.boxWidth = 10; t.boxHeight = 10; t.boxPadding = 4;
+  t.callbacks.labelColor = c => { const ds = c.dataset; const col = ds._swatch || (Array.isArray(ds.pointBackgroundColor) ? ds.pointBackgroundColor[c.dataIndex] : (ds.pointBackgroundColor || ds.borderColor || ds.backgroundColor)); return { borderColor: col, backgroundColor: col, borderWidth: 0, borderRadius: 2 }; };
+  d.elements.point.hitRadius = mob() ? 14 : 6;
+}
+function draw(id, cfg) { if (!window.Chart) return; if (S.charts[id]) S.charts[id].destroy(); S.charts[id] = new Chart($(id), cfg); }
+function axis(extra) { return Object.assign({ grid: { color: css('--grid') }, border: { display: false } }, extra || {}); }
+function range() { const a = +$('from').value, b = +$('to').value; return [Math.min(a, b), Math.max(a, b)]; }
+
+ 
+function key(kind, color, label) {
+  const sw = {
+    line: `<svg width="16" height="8"><line x1="0" y1="4" x2="16" y2="4" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+    dash: `<svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="${color}" stroke-width="2" stroke-dasharray="5 3"/></svg>`,
+    dot2: `<svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="${color}" stroke-width="2" stroke-dasharray="1.5 3" stroke-linecap="round"/></svg>`,
+    dot: `<svg width="10" height="10"><circle cx="5" cy="5" r="4.5" fill="${color}"/></svg>`,
+    tri: `<svg width="11" height="10"><path d="M5.5 0.5 L10.5 9.5 L0.5 9.5 Z" fill="${color}"/></svg>`,
+    bar: `<svg width="10" height="10"><rect width="10" height="10" rx="2" fill="${color}"/></svg>`
+  }[kind];
+  return `<span class="k">${sw}<span>${label}</span></span>`;
+}
+const uniKeys = kind => S.unis.map((u, i) => key(kind, ucol(i), esc(u))).join('');
+
+/* 線の右端に文字を添える小さなプラグイン（体重補正の等値線のラベル用） */
+const endLabels = {
+  id: 'endLabels',
+  afterDatasetsDraw(chart) {
+    const ctx = chart.ctx;
+    chart.data.datasets.forEach((ds, i) => {
+      if (!ds._endLabel) return;
+      const meta = chart.getDatasetMeta(i); if (meta.hidden || !meta.data.length) return;
+      const p = meta.data[meta.data.length - 1];
+      ctx.save(); ctx.fillStyle = css('--text-3'); ctx.font = (mob() ? 10 : 11) + 'px ' + Chart.defaults.font.family;
+      ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText(ds._endLabel, p.x - 2, p.y - 3); ctx.restore();
+    });
+  }
+};
+
+function render() {
+  if (!S.base || $('viewUni').hidden) return;
+  const nat = S.base.national, cat = $('cat').value, sex = S.sex, [a, b] = range();
+  const sel = S.unis.map(n => ({ name: n, d: S.data[n] })).filter(x => x.d);
+  const natSer = (nat.series[sex][cat] || []).filter(r => r[0] >= a && r[0] <= b);
+  const years = natSer.map(r => r[0]);
+  const natBy = Object.fromEntries(natSer.map(r => [r[0], r]));
+  const uBy = sel.map(x => Object.fromEntries((x.d.series[sex][cat] || []).map(r => [r[0], r])));
+
+  /* ---- 比較表（範囲内で、いずれかの大学に記録がある最新年度） */
+  const cy = years.slice().reverse().find(y => uBy.some(m => m[y] && m[y][1])) || years[years.length - 1];
+  $('cmpTitle').textContent = '比較（' + (cy || '') + '年度・' + sex + '・' + cat + '）';
+  const n0 = natBy[cy] || [];
+  const shortName = n => mob() ? n.replace(/大学$/, '大') : n;   
+  const head = '<tr><th></th>' + sel.map(x => `<th>${x.name === S.my ? '★' : ''}<span class="sw" style="background:${ucol(S.unis.indexOf(x.name))}"></span>${esc(shortName(x.name))}</th>`).join('') + '<th>全国<span class="lg-long">の大学生</span></th></tr>';
+  const cell = (fn, natVal) => sel.map((x, i) => `<td class="big">${fn(uBy[i][cy] || [])}</td>`).join('') + `<td>${natVal}</td>`;
+  const has = r => r && r[1];
+  $('tCompare').innerHTML = head +
+    `<tr><td>出場人数</td>${cell(r => has(r) ? r[1] + '名' : '—', n0[1] ? n0[1] + '名' : '—')}</tr>` +
+    `<tr><td>平均</td>${cell(r => has(r) ? fmt(r[2]) : '—', fmt(n0[2]))}</tr>` +
+    `<tr><td>中央値</td>${cell(r => has(r) ? fmt(r[3]) : '—', fmt(n0[3]))}</tr>` +
+    `<tr><td>全国平均との差</td>${cell(r => has(r) && n0[1] ? sgn(r[2] - n0[2]) + '秒<small>' + (r[2] > n0[2] ? '全国平均より遅い' : '全国平均より速い') + '</small>' : '—', '—')}</tr>` +
+    `<tr><td>最速</td>${cell(r => has(r) ? fmt(r[4]) : '—', fmt(n0[4]))}</tr>` +
+    `<tr><td>上位10%の境目</td>${sel.map(() => '<td class="muted">—</td>').join('')}<td>${fmt(n0[5])}</td></tr>`;
+
+  /* ---- 推移 */
+  const fa = Object.fromEntries((nat.finalA && nat.finalA[sex] || []).map(r => [r[0], r]));
+  $('lgTrend').innerHTML = uniKeys('line') + key('dash', css('--nat'), '全国<span class="lg-long">の大学生</span>平均') +
+    key('dot2', css('--ref'), '<span class="lg-long">全国大学生の</span>上位10%<span class="lg-long">の境目</span>') +
+    key('tri', css('--ref'), '<span class="lg-long">インカレ決勝A進出クルーの平均（翌シーズン）</span><span class="lg-short">インカレ決勝A</span>');
+  const uniDs = sel.map((x, i) => {
+    const c = ucol(S.unis.indexOf(x.name)), n = years.map(y => uBy[i][y] ? uBy[i][y][1] : 0), faint = c + '55';
+    return { label: x.name, data: years.map((y, k) => n[k] ? uBy[i][y][2] : null), _n: n, _swatch: c, borderColor: c, borderWidth: 2.2, spanGaps: true, tension: 0.15,
+      pointRadius: n.map(v => v ? (mob() ? 3 : 4) : 0), pointHoverRadius: 6, pointBackgroundColor: n.map(v => v >= 3 ? c : faint), pointBorderColor: css('--surface'), pointBorderWidth: 1.5,
+      segment: { borderColor: ctx => (n[ctx.p0DataIndex] < 3 || n[ctx.p1DataIndex] < 3) ? faint : c } };
+  });
+  draw('cTrend', {
+    type: 'line',
+    data: { labels: years, datasets: uniDs.concat([
+      { label: '全国の大学生平均', data: natSer.map(r => r[1] ? r[2] : null), borderColor: css('--nat'), _swatch: css('--nat'), borderWidth: 2, borderDash: [5, 4], pointRadius: 0, pointHoverRadius: 4, tension: 0.15 },
+      { label: '上位10%の境目', data: natSer.map(r => r[1] ? r[5] : null), borderColor: css('--ref'), _swatch: css('--ref'), borderWidth: 2, borderDash: [1.5, 4], borderCapStyle: 'round', pointRadius: 0, pointHoverRadius: 4, tension: 0.15 },
+      { label: 'インカレ決勝A平均', data: years.map(y => fa[y] ? fa[y][2] : null), showLine: false, pointStyle: 'triangle', pointRadius: mob() ? 5 : 6, pointHoverRadius: 8, pointBackgroundColor: css('--ref'), _swatch: css('--ref'), pointBorderColor: css('--surface'), pointBorderWidth: 1 }
+    ]) },
+    options: {
+      interaction: { mode: 'index', intersect: false },
+      plugins: { tooltip: { callbacks: {
+        title: it => it[0].label + '年度',
+        label: c => {
+          if (c.parsed.y == null) return null;
+          const ds = c.dataset;
+          if (ds._n) return ds.label + '：' + fmt(c.parsed.y) + '（' + ds._n[c.dataIndex] + '名）';
+          if (ds.pointStyle === 'triangle') { const r = fa[years[c.dataIndex]]; return (years[c.dataIndex] + 1) + '年インカレ決勝A：' + fmt(c.parsed.y) + '（' + r[1] + 'クルー）'; }
+          return ds.label + '：' + fmt(c.parsed.y);
+        } } } },
+      scales: { x: axis({ ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: mob() ? 6 : 12, callback: function (v) { const y = String(this.getLabelForValue(v)); return mob() ? "'" + y.slice(2) : y; } } }),
+                y: axis({ reverse: true, ticks: { callback: fmt, maxTicksLimit: mob() ? 5 : 7 } }) }
+    }
+  });
+  $('tTrend').innerHTML = '<table><tr><th>年度</th>' + sel.map(x => `<th>${esc(x.name)} 人数</th><th>${esc(x.name)} 平均</th>`).join('') + '<th>全国 人数</th><th>全国 平均</th><th>上位10%境目</th><th>全国上位10名平均</th><th>決勝A平均</th></tr>' +
+    natSer.map(r => `<tr><td>${r[0]}</td>` + sel.map((x, i) => { const u = uBy[i][r[0]] || []; return `<td>${u[1] || 0}</td><td>${u[1] ? fmt(u[2]) : '—'}</td>`; }).join('') +
+      `<td>${r[1] || 0}</td><td>${r[1] ? fmt(r[2]) : '—'}</td><td>${r[1] ? fmt(r[5]) : '—'}</td><td>${r[1] ? fmt(r[6]) : '—'}</td><td>${fa[r[0]] ? fmt(fa[r[0]][2]) : '—'}</td></tr>`).join('') + '</table>';
+
+  /* ---- 年齢別（範囲内を合算） */
+  const agg = src => { const out = {}; Object.keys(src || {}).forEach(fy => { if (+fy < a || +fy > b) return; Object.entries(src[fy]).forEach(([age, v]) => { out[age] = out[age] || [0, 0]; out[age][0] += v[0]; out[age][1] += v[1]; }); }); return out; };
+  const na = agg(nat.ages[sex][cat]), uas = sel.map(x => agg(x.d.ages[sex][cat]));
+  const ageKeys = ['18', '19', '20', '21', '22', '23'];
+  const avg = (o, k) => o[k] && o[k][0] ? o[k][1] / o[k][0] : null;
+  $('lgAge').innerHTML = uniKeys('dot') + key('dash', css('--nat'), '全国の大学生');
+  draw('cAge', {
+    type: 'line',
+    data: { labels: ageKeys.map(k => k + '才'), datasets: sel.map((x, i) => { const c = ucol(S.unis.indexOf(x.name)); return { label: x.name, data: ageKeys.map(k => avg(uas[i], k)), _cnt: uas[i], borderColor: c, backgroundColor: c, borderWidth: 2, pointRadius: mob() ? 4 : 5, pointBorderColor: css('--surface'), pointBorderWidth: 1.5, spanGaps: true }; })
+      .concat([{ label: '全国の大学生', data: ageKeys.map(k => avg(na, k)), _cnt: na, borderColor: css('--nat'), backgroundColor: css('--nat'), borderWidth: 2, borderDash: [5, 4], pointRadius: 3, spanGaps: true }]) },
+    options: { interaction: { mode: 'index', intersect: false },
+      plugins: { tooltip: { callbacks: { label: c => c.parsed.y == null ? null : c.dataset.label + '：' + fmt(c.parsed.y) + '（' + (c.dataset._cnt[ageKeys[c.dataIndex]] || [0])[0] + '件）' } } },
+      scales: { x: axis({ grid: { display: false } }), y: axis({ reverse: true, ticks: { callback: fmt, maxTicksLimit: mob() ? 5 : 6 } }) } }
+  });
+  $('tAge').innerHTML = '<table><tr><th>年齢</th>' + sel.map(x => `<th>${esc(x.name)} 件数</th><th>${esc(x.name)} 平均</th>`).join('') + '<th>全国 件数</th><th>全国 平均</th></tr>' +
+    ageKeys.map(k => `<tr><td>${k}才</td>` + sel.map((x, i) => `<td>${(uas[i][k] || [0])[0]}</td><td>${fmt(avg(uas[i], k))}</td>`).join('') + `<td>${(na[k] || [0])[0]}</td><td>${fmt(avg(na, k))}</td></tr>`).join('') + '</table>';
+
+  /* ---- 伸び */
+  const gN = nat.growth[sex] || {}, gUs = sel.map(x => x.d.growth[sex] || {});
+  const seasons = ['1', '2', '3', '4'];
+  const gAvg = (g, s) => g[s] && g[s][0] ? g[s][1] / g[s][0] : null;
+  $('lgGrowth').innerHTML = uniKeys('bar') + key('bar', css('--nat'), '全国の大学生');
+  const bar = (label, g, c) => ({ label, data: seasons.map(s => gAvg(g, s)), _g: g, backgroundColor: c, borderRadius: 4, borderSkipped: 'bottom', maxBarThickness: 26 });
+  draw('cGrowth', {
+    type: 'bar',
+    data: { labels: seasons.map(s => mob() ? s + '→' + (+s + 1) : s + '→' + (+s + 1) + '季目'),
+      datasets: sel.map((x, i) => bar(x.name, gUs[i], ucol(S.unis.indexOf(x.name)))).concat([bar('全国の大学生', gN, css('--nat'))]) },
+    options: { datasets: { bar: { categoryPercentage: 0.7, barPercentage: 0.9 } },
+      plugins: { tooltip: { callbacks: { label: c => c.parsed.y == null ? null : c.dataset.label + '：' + (c.parsed.y >= 0 ? c.parsed.y.toFixed(1) + '秒 短縮' : (-c.parsed.y).toFixed(1) + '秒 遅く') + '（' + (c.dataset._g[seasons[c.dataIndex]] || [0])[0] + '人）' } } },
+      scales: { x: axis({ grid: { display: false }, title: { display: mob(), text: '季目' } }), y: axis({ ticks: { callback: v => v + '秒', maxTicksLimit: mob() ? 5 : 8 } }) } }
+  });
+  $('tGrowth').innerHTML = '<table><tr><th>変化</th>' + sel.map(x => `<th>${esc(x.name)} 人数</th><th>${esc(x.name)} 平均短縮</th>`).join('') + '<th>全国 人数</th><th>全国 平均短縮</th></tr>' +
+    seasons.map(s => `<tr><td>${s}→${+s + 1}季目</td>` + sel.map((x, i) => `<td>${(gUs[i][s] || [0])[0]}</td><td>${gAvg(gUs[i], s) == null ? '—' : gAvg(gUs[i], s).toFixed(1) + '秒'}</td>`).join('') +
+      `<td>${(gN[s] || [0])[0]}</td><td>${gAvg(gN, s) == null ? '—' : gAvg(gN, s).toFixed(1) + '秒'}</td></tr>`).join('') + '</table>';
+
+  renderBody(sel, nat, sex);
+  renderPeople(sel, a, b);
+  renderRanking();
+  updateSummary();
+}
+
+/* ---- 体重×エルゴ／身長×体重 */
+function renderBody(sel, nat, sex) {
+  const toPt = p => ({ h: p[0], w: p[1], e: p[2], yr: p[3], adj: p[2] ? p[2] * wf(p[1]) : null });
+  const natPts = (nat.scatter[sex] || []).map(toPt);
+  const uPts = sel.map(x => (x.d.scatter[sex] || []).map(toPt));
+  const erg = S.body === 'erg';
+  $('bodyTitle').textContent = erg ? '体重とエルゴ（体重補正タイム）' : '身長と体重の分布';
+  $('bodyNote').innerHTML = erg
+    ? '横は大会のときの体重、縦はインドアローイングの記録です（上ほど速い）。<br>斜めの点線より上にいる選手ほど、体重のわりにエルゴが速い選手です。'
+    : '大会の結果に載っている身長・体重です（舵手を除く）。<br>点を押すと、詳しい内容が出ます。';
+  $('bodyHow').hidden = !erg;
+  $('lgBody').innerHTML = uniKeys('dot') + key('dot', css('--nat-dot'), '全国の大学生') + (erg ? key('dash', css('--iso'), '体重補正タイムが同じ線') : '');
+
+  const ds = sel.map((x, i) => {
+    const c = ucol(S.unis.indexOf(x.name));
+    const pts = uPts[i].filter(p => !erg || p.e).map(p => erg ? Object.assign({ x: p.w, y: p.e }, p) : Object.assign({ x: p.h, y: p.w }, p));
+    return { label: x.name, data: pts, backgroundColor: c, _swatch: c, borderColor: css('--surface'), borderWidth: 1.5, pointRadius: mob() ? 4 : 5, pointHoverRadius: 7 };
+  });
+  const np = natPts.filter(p => !erg || p.e).map(p => erg ? Object.assign({ x: p.w, y: p.e }, p) : Object.assign({ x: p.h, y: p.w }, p));
+  ds.push({ label: '全国の大学生', data: np, backgroundColor: css('--nat-dot'), _swatch: css('--nat'), pointRadius: mob() ? 2.5 : 3, pointHoverRadius: 5 });
+
+  if (erg) {
+    const all = ds.flatMap(d => d.data);
+    if (all.length) {
+      const wMin = Math.floor(Math.min(...all.map(p => p.x)) - 1), wMax = Math.ceil(Math.max(...all.map(p => p.x)) + 1);
+      const adjs = all.map(p => p.adj), lo = Math.min(...adjs), hi = Math.max(...adjs);
+      let step = 10; while ((hi - lo) / step > 6) step += 10;
+      for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
+        const line = []; for (let w = wMin; w <= wMax; w += 0.5) line.push({ x: w, y: v / wf(w) });
+        ds.push({ type: 'line', label: '補正 ' + fmt(v), _endLabel: '補正 ' + fmt(v), _iso: true, data: line, borderColor: css('--iso'), borderWidth: 1, borderDash: [4, 4], pointRadius: 0, pointHitRadius: 0, tension: 0 });
+      }
+    }
+  }
+  draw('cBody', {
+    type: 'scatter',
+    data: { datasets: ds },
+    plugins: [endLabels],
+    options: {
+      plugins: { tooltip: { filter: it => !it.dataset._iso, callbacks: { label: c => { const p = c.raw;
+        return c.dataset.label + '：' + p.w + 'kg' + (erg ? '' : '・' + p.h + 'cm') + (p.e ? '・エルゴ ' + fmt(p.e) + '・補正 ' + fmt(p.adj) : '') + (p.yr ? '（' + p.yr + '年）' : ''); } } } },
+      scales: erg
+        ? { x: axis({ title: { display: true, text: '体重（kg）' }, ticks: { maxTicksLimit: mob() ? 6 : 10 } }), y: axis({ reverse: true, title: { display: true, text: 'エルゴ 2000m' }, ticks: { callback: fmt, maxTicksLimit: mob() ? 6 : 8 } }) }
+        : { x: axis({ title: { display: true, text: '身長（cm）' }, ticks: { maxTicksLimit: mob() ? 6 : 10 } }), y: axis({ title: { display: true, text: '体重（kg）' }, ticks: { maxTicksLimit: mob() ? 6 : 10 } }) }
+    }
+  });
+
+  /* 集計表（エルゴと体重がそろった選手のみ） */
+  const row = (label, pts, color) => {
+    const e = pts.filter(p => p.e);
+    return `<tr><td>${color ? `<span class="sw" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${color};margin-right:5px"></span>` : ''}${esc(label)}</td><td>${e.length}名</td><td>${fmt(median(e.map(p => p.e)))}</td><td>${e.length ? median(e.map(p => p.w)).toFixed(1) + 'kg' : '—'}</td><td>${fmt(median(e.map(p => p.adj)))}</td></tr>`;
+  };
+  $('tBody').innerHTML = erg ? '<table><tr><th>体重とエルゴがそろった選手</th><th>人数</th><th>エルゴ中央値</th><th>体重中央値</th><th>体重補正タイム中央値</th></tr>' +
+    sel.map((x, i) => row(x.name, uPts[i], ucol(S.unis.indexOf(x.name)))).join('') + row('全国の大学生', natPts, '') + '</table>' : '';
+}
+
+/* ---- 個人一覧（大学ごとのタブ） */
+const pKey = (uni, p) => uni + '|' + p.name + '|' + p.recs[0][0] + '|' + p.recs[0][1];
+function ageAvg(src, sex, fy, age) { const v = (((src || {})[sex] || {})['全体'] || {})[fy]; const x = v && v[age]; return x && x[0] ? x[1] / x[0] : null; }
+
+function renderPeople(sel, a, b) {
+  const auth = sel.filter(x => x.d.authorized);
+  const pc = $('peopleCard');
+  if (!auth.length) { pc.hidden = true; return; }
+  pc.hidden = false;
+  if (S.tab >= auth.length) S.tab = 0;
+  $('ptabs').innerHTML = auth.map((x, i) => `<button type="button" role="tab" data-t="${i}" aria-selected="${i === S.tab}"><span class="sw" style="background:${ucol(S.unis.indexOf(x.name))}"></span>${esc(x.name)}</button>`).join('');
+  const cur = auth[S.tab], sex = S.sex;
+  const ppl = (cur.d.people || []).filter(p => p.sex === sex && p.recs.some(r => r[0] >= a && r[0] <= b));
+  S.pctx = { uni: cur.name, d: cur.d, ppl };
+  $('pCount').textContent = '（' + cur.name + '・' + ppl.length + '名）';
+  const dl = p => p.delta === '' ? '—' : (p.delta >= 0 ? p.delta.toFixed(1) + '秒 短縮' : (-p.delta).toFixed(1) + '秒 遅く');
+  $('tPeople').innerHTML = ppl.length ? '<table><tr><th>選手</th><th style="text-align:left">記録（年度・年齢・区分・タイム）</th><th>最速</th><th>初回→最終</th></tr>' +
+    ppl.map((p, i) => `<tr class="prow${S.selKey === pKey(cur.name, p) ? ' sel' : ''}" data-i="${i}" tabindex="0"><td>${esc(p.name)}</td><td style="text-align:left">${p.recs.map(r => `${r[0]}・${r[1]}才・${r[3]} ${fmt(r[2])}`).join('<br>')}</td><td>${fmt(p.best)}</td><td>${dl(p)}</td></tr>`).join('') + '</table>'
+    : '<div class="empty">選んだ条件の記録はありません。</div>';
+  const lim = S.showAll ? ppl.length : 20;
+  $('lPeople').innerHTML = ppl.length ? ppl.slice(0, lim).map((p, i) => `<div class="pcard${S.selKey === pKey(cur.name, p) ? ' sel' : ''}" data-i="${i}" tabindex="0" role="button"><div class="top"><span>${esc(p.name)}</span><span>最速 ${fmt(p.best)}</span></div>` +
+    `<div class="recs">${p.recs.map(r => `${r[0]}年度（${r[1]}才・${r[3]}）${fmt(r[2])}`).join('<br>')}</div>` + (p.delta === '' ? '' : `<div class="dl">初回→最終：${dl(p)}</div>`) + '</div>').join('') +
+    (ppl.length > lim ? `<button type="button" class="more" id="more">残り${ppl.length - lim}名を表示</button>` : '')
+    : '<div class="empty">選んだ条件の記録はありません。</div>';
+  if ($('more')) $('more').addEventListener('click', () => { S.showAll = true; render(); });
+  const selP = ppl.find(p => pKey(cur.name, p) === S.selKey);
+  if (selP) showPerson(selP, false); else { $('pDetail').hidden = true; S.selKey = null; }
+}
+
+function showPerson(p, scroll) {
+  const { uni, d } = S.pctx, sex = S.sex, nat = S.base.national;
+  const c = ucol(S.unis.indexOf(uni));
+  S.selKey = pKey(uni, p);
+  const recs = p.recs.slice().sort((x, y) => x[0] - y[0]);
+  const natAvg = recs.map(r => ageAvg(nat.ages, sex, r[0], r[1]));
+  const uniAvg = recs.map(r => ageAvg(d.ages, sex, r[0], r[1]));
+  const top = recs.map(r => { const row = (nat.series[sex]['全体'] || []).find(x => x[0] === r[0]); return row && row[1] ? row[5] : null; });
+  const last = recs[recs.length - 1], li = recs.length - 1;
+  $('pdName').textContent = p.name + '（' + uni + '・' + recs[0][0] + '〜' + last[0] + '年度）';
+  const diff = natAvg[li] != null ? last[2] - natAvg[li] : null;
+  $('pdKpi').innerHTML = `<span>最速 <b>${fmt(p.best)}</b></span>` + (p.delta === '' ? '' : `<span>初回→最新 <b>${p.delta >= 0 ? p.delta.toFixed(1) + '秒 短縮' : (-p.delta).toFixed(1) + '秒 遅く'}</b></span>`) +
+    (diff == null ? '' : `<span>最新記録と全国同年齢平均の差 <b>${sgn(diff)}秒</b></span>`);
+  $('lgPerson').innerHTML = key('line', c, '本人') + key('dash', css('--nat'), '全国の大学生<span class="lg-long">（同じ年度・同じ年齢）</span>') +
+    key('dash', c + '88', '同じ大学<span class="lg-long">（同じ年度・同じ年齢）</span>') + key('dot2', css('--ref'), '全国上位10%<span class="lg-long">の境目（全年齢）</span>');
+  $('pDetail').hidden = false;
+  const labels = recs.map(r => mob() ? ["'" + String(r[0]).slice(2), r[1] + '才'] : [r[0] + '年度', r[1] + '才']);
+  const ref = (label, data, color, dash) => ({ label, data, borderColor: color, backgroundColor: color, _swatch: color, borderWidth: 2, borderDash: dash, pointRadius: 3, pointHoverRadius: 5, spanGaps: true, tension: 0.1 });
+  draw('cPerson', {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: '本人', data: recs.map(r => r[2]), borderColor: c, backgroundColor: c, _swatch: c, borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 7, pointBorderColor: css('--surface'), pointBorderWidth: 2, tension: 0.1 },
+      ref('全国の大学生（同年度・同年齢）', natAvg, css('--nat'), [5, 4]),
+      ref('同じ大学（同年度・同年齢）', uniAvg, c + '88', [5, 4]),
+      ref('全国上位10%の境目', top, css('--ref'), [1.5, 4])
+    ] },
+    options: { interaction: { mode: 'index', intersect: false },
+      plugins: { tooltip: { callbacks: {
+        title: it => recs[it[0].dataIndex][0] + '年度・' + recs[it[0].dataIndex][1] + '才・' + recs[it[0].dataIndex][3],
+        label: cc => cc.parsed.y == null ? null : cc.dataset.label + '：' + fmt(cc.parsed.y) + (cc.datasetIndex ? '（本人との差 ' + sgn(recs[cc.dataIndex][2] - cc.parsed.y) + '秒）' : '')
+      } } },
+      scales: { x: axis({ grid: { display: false } }), y: axis({ reverse: true, ticks: { callback: fmt, maxTicksLimit: mob() ? 5 : 6 } }) } }
+  });
+  $('tPerson').innerHTML = '<table><tr><th>年度</th><th>年齢</th><th>区分</th><th>本人</th><th>前年からの短縮</th><th>全国同年齢平均</th><th>同じ大学の同年齢平均</th><th>全国上位10%</th></tr>' +
+    recs.map((r, i) => `<tr><td>${r[0]}</td><td>${r[1]}才</td><td>${r[3]}</td><td>${fmt(r[2])}</td><td>${i && recs[i - 1][0] === r[0] - 1 ? (recs[i - 1][2] - r[2]).toFixed(1) + '秒' : '—'}</td><td>${fmt(natAvg[i])}</td><td>${fmt(uniAvg[i])}</td><td>${fmt(top[i])}</td></tr>`).join('') + '</table>';
+  document.querySelectorAll('.prow, .pcard').forEach(el => el.classList.toggle('sel', !!(S.pctx.ppl[+el.dataset.i] && pKey(uni, S.pctx.ppl[+el.dataset.i]) === S.selKey)));
+  if (scroll) $('pDetail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+ 
+function renderChips() {
+  $('uchips').innerHTML = S.unis.map((u, i) => { const m = u === S.my;
+    return `<span class="uchip${m ? ' is-my' : ''}"><button type="button" class="star" data-star="${i}" aria-pressed="${m}" aria-label="${esc(u)}を${m ? '自大学から外す' : '自大学に登録する'}" title="${m ? '自大学から外す' : '自大学に登録する'}">${m ? '★' : '☆'}</button><span class="sw" style="background:${ucol(i)}"></span>${esc(u)}<button type="button" data-rm="${i}" aria-label="${esc(u)}を外す">×</button></span>`; }).join('') +
+    (!S.my && S.unis.length ? '<span class="myhint">☆を押すと自大学に登録（次回から最初に表示）</span>' : '');
+  $('uniInput').hidden = S.unis.length >= 3;
+  $('uniInput').placeholder = S.unis.length ? '比べる大学を追加' : '大学を選ぶ';
+}
+function saveUnis() { store.set('rowing.unis', JSON.stringify(S.unis)); }
+ 
+function setMy(name) {
+  S.my = name || '';
+  store.set('rowing.myuni', S.my);
+  if (S.my && S.base && S.base.unis.some(u => u[0] === S.my)) {
+    S.unis = [S.my].concat(S.unis.filter(u => u !== S.my)).slice(0, 3);
+    saveUnis();
+  }
+  S.selKey = null; S.tab = 0;
+  renderChips();
+  if (A.data) {
+    const opts = [...$('aMyUni').options];
+    opts.forEach(x => { if (x.dataset.label) x.textContent = (x.value === S.my ? '★ ' : '') + x.dataset.label; });
+    $('aMyUni').value = opts.some(x => x.value === S.my) ? S.my : '';
+  }
+  if (!$('viewAna').hidden && A.data) onUniChange(); else loadData();
+}
+function addUni(name) {
+  name = String(name || '').trim();
+  if (!name) return;
+  if (!S.base.unis.some(u => u[0] === name)) { $('msg').innerHTML = `<div class="banner">「${esc(name)}」の記録が見つかりません。候補から選んでください。</div>`; return; }
+  if (S.unis.includes(name)) return;
+  if (S.unis.length >= 3) { $('msg').innerHTML = '<div class="banner">比べられるのは3校までです。どれかを外してから追加してください。</div>'; return; }
+  $('msg').innerHTML = '';
+  S.unis.push(name); saveUnis(); renderChips(); loadData();
+}
+function removeUni(i) {
+  const name = S.unis[i];
+  S.unis.splice(i, 1); saveUnis();
+  if (name === S.my) { S.my = ''; store.set('rowing.myuni', ''); if (A.data) $('aMyUni').value = ''; }
+  renderChips(); S.selKey = null; render();
+}
+
+function loadData() {
+  const code = $('code').value.trim();
+  const need = S.unis.filter(n => !S.data[n] || S.data[n]._code !== code);
+  if (!need.length) { render(); return; }
+  Promise.all(need.map(n => api('uni', n, code).then(d => { if (d && !d.error) { d._code = code; S.data[n] = d; } else { delete S.data[n]; $('msg').innerHTML = `<div class="banner">${esc((d && d.error) || '読み込みに失敗しました')}</div>`; } })))
+    .then(() => {
+      if (code && S.unis.length && !S.unis.some(n => S.data[n] && S.data[n].authorized)) $('msg').innerHTML = '<div class="banner">合言葉が違うため、個人の記録は表示していません。</div>';
+      render();
+      loadRanking(code);
+    }).catch(e => { $('msg').innerHTML = `<div class="banner">読み込みに失敗しました（${esc(e.message || e)}）</div>`; });
+}
+
+ 
+const R = { data: {}, tab: 0, season: '', metric: '2000m', src: 'a' };
+function loadRanking(code) {
+  if (!code) { R.data = {}; renderRanking(); return; }
+  const need = S.unis.filter(n => !R.data[n] || R.data[n]._code !== code);
+  Promise.all(need.map(n => api('ranking', n, code).then(d => { if (d && !d.error && d.persons) { d._code = code; R.data[n] = d; } else delete R.data[n]; }).catch(() => { delete R.data[n]; })))
+    .then(renderRanking);
+}
+const fyNow = () => { const d = new Date(); return d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1; };
+const gradeIn = (entry, fy) => { if (!entry || !fy) return '—'; const g = fy - entry + 1; return g < 1 ? '—' : g <= 4 ? g + '年' : g <= 6 ? '大学院（目安）' : '—'; };
+function renderRanking() {
+  const card = $('rankCard');
+  const unis = S.unis.filter(n => R.data[n]);
+  if (!unis.length) { card.hidden = true; return; }
+  card.hidden = false;
+  if (R.tab >= unis.length) R.tab = 0;
+  $('rkTabs').innerHTML = unis.map((n, i) => `<button type="button" role="tab" data-t="${i}" aria-selected="${i === R.tab}"><span class="sw" style="background:${ucol(S.unis.indexOf(n))}"></span>${esc(n)}${R.data[n].full ? '' : '<small class="muted">（伏せ字）</small>'}</button>`).join('');
+  const d = R.data[unis[R.tab]], sex = S.sex, m = R.metric, src = m === '2000m' ? R.src : 'a';
+  $('rkSrc').querySelectorAll('button').forEach(b => { b.disabled = m !== '2000m'; });
+  const recsOf = p => p.recs.filter(r => r.k === m && (src === 'a' || r.s === 'o'));
+  const people = d.persons.filter(p => p.sex === sex);
+  const seasons = [...new Set(people.flatMap(p => recsOf(p).map(r => r.fy)))].sort((a, b) => b - a);
+  if (!seasons.includes(+R.season) && R.season !== 'all') R.season = seasons[0] || 'all';
+  $('rkSeason').innerHTML = seasons.map(y => `<option value="${y}">${y}年度</option>`).join('') + '<option value="all">歴代</option>';
+  $('rkSeason').value = String(R.season);
+  /* 20分は距離が長いほど上位。値は500mあたりのペース（秒）なので、小さいほど上位で並べ方は同じ */
+  const rows = people.map(p => {
+    const rs = recsOf(p).filter(r => R.season === 'all' || r.fy === +R.season);
+    if (!rs.length) return null;
+    const best = rs.reduce((a, b) => b.v < a.v ? b : a);
+    return { p, best, n: rs.length };
+  }).filter(Boolean).sort((a, b) => a.best.v - b.best.v);
+  const label = (R.season === 'all' ? '歴代' : R.season + '年度') + '・' + sex + '・' + m + (m === '2000m' ? (src === 'o' ? '・公式記録だけ' : '・自主測定も含む') : '');
+  $('rkTitle').textContent = '大学内のランキング（' + unis[R.tab] + '）';
+  $('rkNote').textContent = rows.length ? label + '：' + rows.length + '名' : label + 'の記録はありません。';
+  const recTxt = r => m === '20分' ? `${r.dist}m<small class="muted">（${fmt(r.v)}/500m）</small>` : fmt(r.v);
+  const where = r => r.s === 'o' ? 'JARAインドア' : '部内測定' + (r.d ? `<small class="muted">（${esc(r.d)}）</small>` : '');
+  $('tRank').innerHTML = rows.length ? `<table><tr><th>順位</th><th class="lf">氏名</th>${R.season === 'all' ? '<th>年度</th>' : ''}<th>学年</th><th>記録</th><th>体重</th>${m === '2000m' ? '<th>全国の大学生の中で</th>' : ''}<th class="lf">記録の場面</th></tr>` +
+    rows.map((x, i) => `<tr><td class="n" style="font-size:15px">${i + 1}</td><td class="lf">${esc(x.p.n)}</td>${R.season === 'all' ? `<td>${x.best.fy}</td>` : ''}<td>${gradeIn(x.p.entry, x.best.fy)}</td>` +
+      `<td class="n" style="font-size:15px">${recTxt(x.best)}</td><td>${x.best.w ? x.best.w + 'kg' : '—'}</td>${m === '2000m' ? `<td>${x.best.top ? '上位 ' + x.best.top + '%' : '—'}</td>` : ''}<td class="lf">${where(x.best)}</td></tr>`).join('') + '</table>'
+    : '<div class="empty">この条件の記録はありません。</div>';
+}
+
+function updateSummary() {
+  const [a, b] = range();
+  $('fsum').textContent = [(S.unis.join('・') || '大学未選択'), S.sex, $('cat').value, a === b ? a + '年度' : a + '–' + b + '年度'].join(' / ');
+}
+function setQuick(n) { const ys = S.base.years, last = ys[ys.length - 1]; $('to').value = last; $('from').value = n ? (ys.find(y => y >= last - n + 1) || ys[0]) : ys[0]; syncQuick(); }
+function syncQuick() {
+  const ys = S.base.years, last = ys[ys.length - 1], [a, b] = range();
+  $('quick').querySelectorAll('button').forEach(x => { const n = +x.dataset.n; x.setAttribute('aria-pressed', String(b === last && (n ? a === (ys.find(y => y >= last - n + 1) || ys[0]) : a === ys[0]))); });
+}
+
+
+/* ================= 戦績とエルゴ（①戦績の推移 ②エルゴとの関係 ③目標までの距離 ④指標くらべ） ================= */
+const A = { data: null, loading: false };
+const T = { data: {}, loading: {} }; /* 大学ごとの戦績（全年・全種目） */
+const parseTime = t => { const m = String(t || '').trim().replace('：', ':').match(/^(\d{1,2}):(\d{1,2}(?:\.\d+)?)$/); return m ? +m[1] * 60 + parseFloat(m[2]) : null; };
+const quant = (sorted, q) => { if (!sorted.length) return null; const pos = (sorted.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos); return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo); };
+const hasErg = c => c[11] !== '' && c[11] != null;
+const gapOf = pct => pct ? pct - 100 : null;                     /* 1位比（%）→ 優勝との差（%） */
+const pctTxt = g => g == null ? '—' : Math.abs(g) < 0.05 ? '0%' : (g > 0 ? '+' : '−') + Math.abs(g).toFixed(1) + '%';
+const pctTick = v => v === 0 ? '0%' : (v > 0 ? '+' : '−') + Math.abs(v) + '%';
+const lines = (...a) => a.filter(Boolean).map(esc).join('<br>');
+/* 列：0大会ID 1年 2大会種別 3種目コード 4種目名 5性別 6クルー名 7団体名 8順位 9母数 10 1位比 11平均エルゴ秒（計算できなければ空） 12判明数 13漕手数 14分析区分 15決勝の組 16最終レース */
+/*     17指標別 {2000:{ob,ol,ab,al}, 6000:{ab,al}, 20min:{ab,al}, grade:[平均学年,人数]} 18要確認の数 19条件つき自動の数 20手入力メンバー */
+/* 画面では、選んだ指標・記録の種類・使う記録の値で 11・12・14 を置き換えた A.rows を使う */
+const METRICS = {
+  '2000': { name: '2000m', avg: '平均エルゴ', axis: 'クルーの平均エルゴ（2000m）', ph: '6:35.0' },
+  '6000': { name: '6000m', avg: '平均6000m', axis: 'クルーの平均 6000m', ph: '21:30.0' },
+  '20min': { name: '20分', avg: '20分の平均ペース', axis: 'クルーの 20分 平均ペース（500mあたり）', ph: '1:52.0' }
+};
+const MV = () => METRICS[$('aMetric').value] || METRICS['2000'];
+const segVal = id => $(id).querySelector('[aria-pressed="true"]').dataset.v;
+const variantKey = metric => (metric === '2000' && segVal('aSrc') === 'o' ? 'o' : 'a') + segVal('aPick');
+function crewVal(c, metric, key) {
+  const m = c[17] || {};
+  let v = (m[metric] || {})[key];
+  /* 指標別がない古い集計（まとめて更新の前）は、2000mの公式記録の値をそのまま使う */
+  if (!v && metric === '2000' && !Object.keys(m).length && hasErg(c)) v = [c[11], c[12]];
+  return v || null;
+}
+function withVal(c, v) {
+  const r = c.slice(), ok = !!v && v[0] !== '' && v[0] != null;
+  r[11] = ok ? +v[0] : ''; r[12] = v ? v[1] : 0;
+  r[14] = ok ? ((v[1] === c[13] && !c[18] && !c[19]) ? '厳しめ' : '広め') : '';
+  return r;
+}
+function applyVariant() {
+  const metric = $('aMetric').value, key = variantKey(metric);
+  A.rows = A.data.crews.map(c => withVal(c, crewVal(c, metric, key)));
+  $('aSrc').querySelectorAll('button').forEach(b => { b.disabled = metric !== '2000'; });
+  $('aSrc').title = metric === '2000' ? '' : '6000m・20分は自主測定の記録だけです';
+  $('aMine').placeholder = MV().ph;
+  $('aMineLabel').textContent = '予定しているクルーの' + MV().avg;
+  $('anaX').textContent = '横は' + MV().axis + '、縦は優勝との差です。' + (metric === '20min' ? '横は左ほど速いペースです。' : '');
+}
+function pearson(xs, ys) {
+  const n = xs.length; if (n < 3) return null;
+  const mx = xs.reduce((p, v) => p + v, 0) / n, my = ys.reduce((p, v) => p + v, 0) / n;
+  let sxy = 0, sxx = 0, syy = 0; for (let i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) ** 2; syy += (ys[i] - my) ** 2; }
+  return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : null;
+}
+const selUni = () => $('aMyUni').value;
+function loadTeam(uni) {
+  if (!uni || T.data[uni] || T.loading[uni]) return Promise.resolve();
+  T.loading[uni] = true;
+  return api('team', uni).then(d => { T.loading[uni] = false; if (d && !d.error && Array.isArray(d.crews)) T.data[uni] = d; })
+    .catch(() => { T.loading[uni] = false; });
+}
+function loadAnalysis() {
+  if (A.data || A.loading) { if (A.data) renderAna(); return; }
+  A.loading = true;
+  $('aMsg').innerHTML = '<div class="ok-msg">戦績とエルゴのデータを読み込んでいます…</div>';
+  /* 大学の一覧（所在地を含む）が届いてから組み立てる。戦績タブで開いたときに、所在地が空のまま並ぶのを防ぐ */
+  Promise.all([api('analysis'), (S.baseReady || Promise.resolve()).catch(() => null)]).then(([d]) => {
+    A.loading = false;
+    if (d.error) { $('aMsg').innerHTML = `<div class="banner">${esc(d.error)}</div>`; return; }
+    A.data = d;
+    applyVariant();
+    const ys = [...new Set(d.crews.map(c => +c[1]))].filter(Boolean).sort((a, b) => a - b);
+    const yo = ys.map(y => `<option value="${y}">${y}</option>`).join('');
+    $('aFrom').innerHTML = yo; $('aTo').innerHTML = yo; $('aFrom').value = ys[0]; $('aTo').value = ys[ys.length - 1];
+    /* 大学：北から（都道府県の順）。初期値は★の大学 */
+    const names = new Set((S.base ? S.base.unis : []).map(u => u[0]));
+    d.crews.forEach(c => { if (/大学/.test(c[7])) names.add(c[7]); });
+    $('aMyUni').innerHTML = '<option value="">（選ばない）</option>' + groupedOptions([...names], o => `<option value="${esc(o)}" data-label="${esc(o)}">${o === S.my ? '★ ' : ''}${esc(o)}</option>`);
+    const pref = [S.my, S.unis[0]].find(o => o && names.has(o));
+    $('aMyUni').value = pref || '';
+    onUniChange();
+  }).catch(e => { A.loading = false; $('aMsg').innerHTML = `<div class="banner">読み込みに失敗しました（${esc(e.message || e)}）</div>`; });
+}
+function onUniChange() {
+  const uni = selUni();
+  $('tmVerdict').textContent = uni && !T.data[uni] ? '戦績を読み込み中…' : '';
+  loadTeam(uni).then(() => { fillTypes(); fillEvents(); renderAna(); });
+}
+function fillTypes() {
+  const cur = $('aType').value, td = T.data[selUni()];
+  const types = new Set(A.data.crews.map(c => c[2]).filter(Boolean));
+  if (td) td.crews.forEach(c => c[2] && types.add(c[2]));
+  const order = ['インカレ', '全日本新人', '全日本選手権', '国スポ'];
+  const list = [...types].sort((a, b) => (order.indexOf(a) + 99) % 99 - (order.indexOf(b) + 99) % 99);
+  $('aType').innerHTML = list.map(t => `<option>${esc(t)}</option>`).join('') + '<option value="">すべての大会</option>';
+  $('aType').value = list.includes(cur) || cur === '' && A.typeSet ? cur : (list.includes('インカレ') ? 'インカレ' : list[0] || '');
+  A.typeSet = true;
+}
+/* 種目：選んだ大学が出た種目を、出た回数の多い順に先頭へ。ほかの種目も選べる */
+function fillEvents() {
+  const type = $('aType').value, cur = $('aEvent').value, td = T.data[selUni()];
+  const mine = {}, any = {}, names = Object.assign({}, A.data.events);
+  if (td) td.crews.forEach(c => { if (!type || c[2] === type) { mine[c[3]] = (mine[c[3]] || 0) + 1; names[c[3]] = names[c[3]] || c[4]; } });
+  A.data.crews.forEach(c => { if ((!type || c[2] === type) && (hasErg(c) || Object.keys(c[17] || {}).length)) any[c[3]] = (any[c[3]] || 0) + 1; });
+  const codes = [...new Set(Object.keys(mine).concat(Object.keys(any)))].sort((a, b) => (mine[b] || 0) - (mine[a] || 0) || (any[b] || 0) - (any[a] || 0));
+  const opt = c => `<option value="${esc(c)}">${esc(names[c] || c)}${mine[c] ? `（${mine[c]}回出場）` : ''}</option>`;
+  const a = codes.filter(c => mine[c]), b = codes.filter(c => !mine[c]);
+  $('aEvent').innerHTML = (a.length ? `<optgroup label="${esc(selUni())}が出た種目">${a.map(opt).join('')}</optgroup>` : '') + (b.length ? `<optgroup label="ほかの種目">${b.map(opt).join('')}</optgroup>` : '');
+  if (codes.includes(cur)) $('aEvent').value = cur;
+}
+function anaScope() {
+  const type = $('aType').value, code = $('aEvent').value, a = Math.min(+$('aFrom').value, +$('aTo').value), b = Math.max(+$('aFrom').value, +$('aTo').value);
+  return A.rows.filter(c => (!type || c[2] === type) && c[3] === code && +c[1] >= a && +c[1] <= b);
+}
+function anaRows() {
+  const strict = segVal('aQual') === 'strict';
+  return anaScope().filter(c => hasErg(c) && (!strict || c[14] === '厳しめ'));
+}
+function strength(r) { const x = Math.abs(r); return x >= 0.7 ? '強い' : x >= 0.4 ? 'はっきりした' : x >= 0.2 ? '弱い' : 'ほとんどない'; }
+/* 選んだ大学＝青、大学別で選んだほかの大学（最大2校）＝オレンジ・緑 */
+function anaUnis() {
+  const my = selUni();
+  const list = [];
+  if (my) list.push({ name: my, color: ucol(0), mine: true });
+  S.unis.filter(u => u !== my).slice(0, my ? 2 : 3).forEach(u => list.push({ name: u, color: ucol(list.length), mine: false }));
+  return list;
+}
+
+function renderAna() {
+  if (!A.data) return;
+  if (!$('aEvent').value) { $('aMsg').innerHTML = '<div class="banner">この大会に種目の記録がありません。大会を変えてください。</div>'; return; }
+  $('aMsg').innerHTML = '';
+  const all = anaRows(), rows = $('aAll').checked ? all.filter(c => c[10]) : all.filter(c => c[15] && c[10]);
+  /* ---- ② 相関（縦は優勝との差％） */
+  const n = rows.length, xs = rows.map(c => c[11]), ys = rows.map(c => gapOf(c[10]));
+  let r = null, slope = null, icpt = null;
+  if (n >= 3) {
+    const mx = xs.reduce((p, v) => p + v, 0) / n, my = ys.reduce((p, v) => p + v, 0) / n;
+    let sxy = 0, sxx = 0, syy = 0; for (let i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) ** 2; syy += (ys[i] - my) ** 2; }
+    if (sxx > 0 && syy > 0) { r = sxy / Math.sqrt(sxx * syy); slope = sxy / sxx; icpt = my - slope * mx; }
+  }
+  A.fit = slope != null ? { slope, icpt } : null;
+  A.expect = c => A.fit && hasErg(c) ? A.fit.icpt + A.fit.slope * c[11] : null;
+  $('aStats').innerHTML = `<span>対象のクルー<b>${n}</b></span>` + (r == null ? '' : `<span>関係の強さ r<b>${r.toFixed(2)}</b></span>`) +
+    (slope > 0 ? `<span>1秒速いと<b>−${slope.toFixed(2)}%</b></span>` : '');
+  $('aVerdict').innerHTML = r == null
+    ? lines('クルーが少ないため、関係を計算できません。', '「詳しい設定」で年の範囲を広げるか、対象のクルーを「4分の3以上」にしてください。')
+    : lines(`${MV().avg}と成績には、${strength(r)}関係があります（r=${r.toFixed(2)}）。`,
+      slope > 0 ? `${MV().avg}が1秒速いクルーほど、優勝との差が約${slope.toFixed(2)}%小さくなる傾向です。` : '',
+      n < 15 ? 'クルーが15未満なので、参考値として見てください。' : '');
+   
+  const uni = selUni(), mineRows = uni ? rows.filter(c => c[7] === uni) : [];
+  const res = mineRows.map(c => gapOf(c[10]) - A.expect(c)).filter(v => !isNaN(v) && v != null);
+  const avgRes = res.length ? res.reduce((p, v) => p + v, 0) / res.length : null;
+  $('mineVerdict').innerHTML = !uni || !A.fit ? '' : avgRes == null ? lines(`${uni}のクルーは、この範囲で${MV().avg}が分かるクルーがありません。`)
+    : Math.abs(avgRes) < 0.5 ? lines(`${uni}は、${MV().avg}から見込まれるとおりの成績でした（差は平均${Math.abs(avgRes).toFixed(1)}%、${res.length}クルー）。`, res.length < 3 ? 'クルーが少ないので、参考値として見てください。' : '')
+    : lines(`${uni}は、${MV().avg}から見込まれる成績より、平均${Math.abs(avgRes).toFixed(1)}%${avgRes <= 0 ? 'よい' : 'わるい'}結果でした（${res.length}クルー）。`,
+      avgRes <= 0 ? 'エルゴの数字以上に、水上で速く進めていると読めます。' : 'エルゴの力を、水上で生かしきれていない可能性があります。',
+      res.length < 3 ? 'クルーが少ないので、参考値として見てください。' : '');
+  const U = anaUnis(), grey = css('--nat');
+  const toPt = c => ({ x: c[11], y: gapOf(c[10]), c });
+  const mk = (label, data, color, strict, big) => ({ label, data, pointRadius: big ? (mob() ? 6 : 7) : (mob() ? 4 : 5), pointHoverRadius: big ? 9 : 7, borderWidth: big ? 2.2 : 1.6, _swatch: color,
+    backgroundColor: strict ? color : 'transparent', borderColor: color, pointStyle: 'circle' });
+  const ds = [];
+  U.forEach(u => {
+    const m = rows.filter(c => c[7] === u.name);
+    if (m.length) { ds.push(mk(u.name, m.filter(c => c[14] === '厳しめ').map(toPt), u.color, true, u.mine)); ds.push(mk(u.name + '（一部の記録）', m.filter(c => c[14] !== '厳しめ').map(toPt), u.color, false, u.mine)); }
+  });
+  const others = rows.filter(c => !U.some(u => u.name === c[7]));
+  ds.push(mk('ほかの大学など', others.filter(c => c[14] === '厳しめ').map(toPt), css('--nat-dot'), true));
+  ds.push(mk('ほかの大学など（一部の記録）', others.filter(c => c[14] !== '厳しめ').map(toPt), grey, false));
+  if (slope != null) { const x0 = Math.min(...xs), x1 = Math.max(...xs); ds.push({ type: 'line', label: '傾向線', data: [{ x: x0, y: icpt + slope * x0 }, { x: x1, y: icpt + slope * x1 }], borderColor: css('--ref'), borderDash: [5, 4], borderWidth: 1.5, pointRadius: 0, pointHitRadius: 0, _trend: true }); }
+  $('lgAna').innerHTML = U.map(u => key('dot', u.color, esc(u.name))).join('') + key('dot', css('--nat-dot'), 'ほかの大学など') +
+    `<span class="k"><svg width="10" height="10"><circle cx="5" cy="5" r="4" fill="none" stroke="${grey}" stroke-width="1.6"/></svg><span>白抜き＝一部の漕手の記録だけ</span></span>` + key('dash', css('--ref'), '傾向線');
+  draw('cAna', { type: 'scatter', data: { datasets: ds },
+    options: { plugins: { tooltip: { filter: it => !it.dataset._trend, callbacks: {
+      title: it => { const c = it[0].raw.c; return c[1] + '年 ' + c[2] + '・' + c[6]; },
+      label: it => { const c = it.raw.c; const out = [MV().avg + ' ' + fmt(c[11]) + '（' + c[12] + '/' + c[13] + '名分）', '優勝との差 ' + pctTxt(gapOf(c[10])) + (c[15] ? '・決勝' + c[15] : '・' + c[16]) + (c[8] ? '・全体' + c[8] + '位/' + ((A.data.total || {})[c[2] + '|' + c[3] + '|' + c[1]] || c[9]) : '')];
+        const e = A.expect(c); if (e != null) { const d = gapOf(c[10]) - e; out.push('エルゴから見込まれる成績より ' + Math.abs(d).toFixed(1) + '% ' + (d <= 0 ? 'よい' : 'わるい')); }
+        return out; } } } },
+      scales: { x: axis({ title: { display: true, text: MV().axis }, ticks: { callback: fmt, maxTicksLimit: mob() ? 5 : 8 } }),
+                y: axis({ reverse: true, title: { display: true, text: '優勝との差（%）' }, ticks: { callback: pctTick, maxTicksLimit: mob() ? 6 : 8 } }) } } });
+  renderTeam();
+  renderRev(all);
+  renderCmp();
+}
+
+/* 点の上に決勝の組（A・B…）を書く小さなプラグイン */
+const ptLabels = {
+  id: 'ptLabels',
+  afterDatasetsDraw(chart) {
+    const ctx = chart.ctx;
+    chart.data.datasets.forEach((ds, i) => {
+      if (!ds._labels) return;
+      const meta = chart.getDatasetMeta(i); if (meta.hidden) return;
+      meta.data.forEach((p, j) => { const t = ds._labels[j]; if (!t) return;
+        ctx.save(); ctx.fillStyle = css('--text-2'); ctx.font = '600 ' + (mob() ? 10 : 11) + 'px ' + Chart.defaults.font.family; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(t, p.x, p.y - 7); ctx.restore(); });
+    });
+  }
+};
+/* ---- ① 戦績の推移（エルゴの有無に関係なく、すべての年） */
+function renderTeam() {
+  const uni = selUni(), card = $('teamCard');
+  if (!uni) { card.hidden = true; return; }
+  card.hidden = false;
+  const td = T.data[uni], type = $('aType').value, code = $('aEvent').value;
+  const evName = A.data.events[code] || (td && (td.crews.find(c => c[3] === code) || [])[4]) || code;
+  $('tmTitle').textContent = `① ${uni}・${type || 'すべての大会'}・${evName}の戦績`;
+  const clear = msg => { $('tmStats').innerHTML = ''; $('tmVerdict').textContent = msg; $('tTm').innerHTML = ''; $('lTm').innerHTML = ''; $('lgTm').innerHTML = ''; draw('cTm', { type: 'scatter', data: { datasets: [] } }); };
+  if (!td) { clear(T.loading[uni] ? '戦績を読み込み中…' : '戦績を読み込めませんでした。'); return; }
+  const list = td.crews.filter(c => (!type || c[2] === type) && c[3] === code).sort((p, q) => q[1] - p[1] || String(p[0]).localeCompare(String(q[0])) || String(p[5]).localeCompare(String(q[5]), 'ja'));
+  if (!list.length) { clear(`${uni}は、この大会・種目に出た記録がありません。`); return; }
+  const anaBy = new Map(A.rows.map(r => [r[0] + '|' + r[3] + '|' + r[6], r]));
+  const resTxt = c => c[13] ? '決勝' + c[13] : /除外/.test(c[6]) ? c[6] : c[6] ? c[6] + 'で敗退' : (c[9] || '—');
+  /* 全体の順位／その種目に出たクルーの数（予選から数える）。順位がつかない敗退クルーは「—」 */
+  const placeTxt = c => { const n = c[14] || c[8]; return (c[7] !== '' && c[7] != null ? '全体' + c[7] + '位' : '—') + (n ? '/' + n : ''); };
+  const rows = list.map(c => {
+    const a = anaBy.get(c[0] + '|' + c[3] + '|' + c[5]);
+    const g = gapOf(c[12]), e = a ? A.expect(a) : null;
+    const grade = a && a[17] && a[17].grade ? a[17].grade[0] : null;
+    return { c, a, g, erg: a && hasErg(a) ? a[11] : null, known: a ? a[12] + '/' + a[13] : '', res: e != null && g != null ? g - e : null, grade, line: td.lines[c[0] + '|' + c[3]] || ['', ''] };
+  });
+  /* 年ごとのいちばん良いクルー */
+  const best = {}; rows.forEach(x => { if (x.g != null && (!best[x.c[1]] || x.g < best[x.c[1]].g)) best[x.c[1]] = x; });
+  const years = Object.keys(best).map(Number).sort((a, b) => a - b);
+  const finA = rows.filter(x => x.c[13] === 'A').length;
+  const top = rows.filter(x => x.c[7]).sort((p, q) => p.c[7] - q.c[7] || q.c[1] - p.c[1])[0];
+  const last = best[years[years.length - 1]];
+  $('tmStats').innerHTML = `<span>出場した年<b>${new Set(list.map(c => c[1])).size}</b></span><span>決勝Aに進んだ回数<b>${finA}</b></span>` +
+    (top ? `<span>最高の順位<b>全体${top.c[7]}位</b><small class="muted">${top.c[1]}年・${top.c[14] || top.c[8]}クルー中</small></span>` : '') + (last ? `<span>直近の優勝との差<b>${pctTxt(last.g)}</b><small class="muted">${last.c[1]}年</small></span>` : '');
+  /* まとめ（直近の結果と、決勝Aの目安までの差） */
+  const la = last && last.line[0] !== '' ? gapOf(last.line[0]) : null;
+  const old = years.slice(0, -3).map(y => best[y].g).filter(g => g <= 30), recent = years.slice(-3).map(y => best[y].g).filter(g => g <= 30);
+  const avg = a => a.reduce((p, v) => p + v, 0) / a.length;
+  /* 優勝との差が30%を超える記録（転覆・棄権・途中のトラブルなど）は、グラフの目盛りが崩れるので点を描かない（表には残す） */
+  const OUT = 30;
+  const pts = rows.filter(x => x.g != null && x.g <= OUT), outN = rows.filter(x => x.g != null && x.g > OUT).length;
+  $('tmVerdict').innerHTML = !last ? lines('タイムの記録がないため、優勝との差は出せません。') : lines(
+    `直近は${last.c[1]}年：${resTxt(last.c)}${placeTxt(last.c) ? '（' + placeTxt(last.c) + '）' : ''}、優勝との差 ${pctTxt(last.g)}。`,
+    la == null ? '' : last.g <= la ? '決勝Aの目安の内側でした。' : `決勝Aの目安（${pctTxt(la)}）まで、あと${(last.g - la).toFixed(1)}%でした。`,
+    outN ? `優勝との差が${OUT}%を超えた記録（${outN}件）は、転覆や途中棄権などの可能性があるため、グラフには描いていません（表には載せています）。` : '',
+    old.length >= 2 && recent.length >= 2 ? `直近3回（${years.slice(-3)[0]}〜${years[years.length - 1]}年）の平均は ${pctTxt(avg(recent))}、それより前（${years[0]}〜${years[years.length - 4]}年）の平均は ${pctTxt(avg(old))} です。` : '');
+  /* グラフ */
+  const c1 = ucol(0);
+  const lineDs = (label, idx, dash) => ({ type: 'line', label, data: years.map(y => { const l = best[y].line[idx]; return l === '' ? null : { x: y, y: gapOf(l) }; }).filter(Boolean),
+    borderColor: css('--ref'), _swatch: css('--ref'), borderDash: dash, borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: css('--ref'), tension: 0, spanGaps: true });
+  $('lgTm').innerHTML = key('line', c1, esc(uni) + '（その年のいちばん良いクルー）') + key('dash', css('--ref'), '決勝Aの目安') + key('dot2', css('--ref'), '決勝Bの目安');
+  draw('cTm', { type: 'scatter', plugins: [ptLabels], data: { datasets: [
+    { type: 'line', label: uni, data: years.filter(y => best[y].g <= OUT).map(y => ({ x: y, y: best[y].g })), borderColor: c1, backgroundColor: c1, _swatch: c1, borderWidth: 2.2, pointRadius: 0, pointHitRadius: 0, tension: 0 },
+    { label: uni + 'のクルー', data: pts.map(x => ({ x: x.c[1], y: x.g, row: x })), backgroundColor: c1, _swatch: c1, borderColor: css('--surface'), borderWidth: 1.5, pointRadius: mob() ? 5 : 6, pointHoverRadius: 8, _labels: pts.map(x => x.c[13] || '') },
+    lineDs('決勝Aの目安', 0, [5, 4]), lineDs('決勝Bの目安', 1, [1.5, 4])
+  ] }, options: { plugins: { tooltip: { filter: it => it.datasetIndex !== 0, callbacks: {
+      title: it => it[0].raw.row ? it[0].raw.row.c[1] + '年 ' + it[0].raw.row.c[5] : it[0].raw.x + '年',
+      label: it => { const x = it.raw.row; if (!x) return it.dataset.label + '：' + pctTxt(it.raw.y); return [resTxt(x.c) + (placeTxt(x.c) ? '・' + placeTxt(x.c) : ''), '優勝との差 ' + pctTxt(x.g)].concat(x.erg != null ? [MV().avg + ' ' + fmt(x.erg)] : []); } } } },
+    scales: { x: axis({ type: 'linear', grid: { display: false }, ticks: { stepSize: 1, precision: 0, callback: v => mob() ? "'" + String(v).slice(2) : String(v), maxTicksLimit: mob() ? 7 : 14 } }),
+              y: axis({ reverse: true, title: { display: true, text: '優勝との差（%）' }, ticks: { callback: pctTick, maxTicksLimit: mob() ? 5 : 7 } }) } } });
+  /* 一覧（PCは表、スマホはカード） */
+  const entered = x => (td.manual || {})[x.c[0] + '|' + x.c[3] + '|' + x.c[5]];
+  const ergTxt = x => x.erg != null ? fmt(x.erg) : x.a ? '記録不足' : entered(x) ? 'メンバー入力済み（次の更新で反映）' : 'メンバー未入力';
+  const resCell = x => x.res == null ? '—' : Math.abs(x.res) < 0.5 ? 'ほぼ見込みどおり' : Math.abs(x.res).toFixed(1) + '% ' + (x.res <= 0 ? 'よい' : 'わるい');
+  $('tTm').innerHTML = '<table><tr><th>年</th><th class="lf">クルー</th><th class="lf">結果</th><th>優勝との差</th><th>' + MV().avg + '</th><th>エルゴからの見込みと比べて</th><th>平均学年</th></tr>' +
+    rows.map(x => `<tr><td>${x.c[1]}</td><td class="lf">${esc(x.c[5])}${type ? '' : `<small class="muted">（${esc(x.c[2])}）</small>`}</td><td class="lf">${esc(resTxt(x.c))}${placeTxt(x.c) ? `<small class="muted">（${placeTxt(x.c)}）</small>` : ''}</td>` +
+      `<td class="n" style="font-size:15px">${pctTxt(x.g)}</td><td>${x.erg != null ? `<span class="n" style="font-size:15px">${fmt(x.erg)}</span><small class="muted">（${x.known}名分）</small>` : `<span class="muted">${ergTxt(x)}</span>`}</td>` +
+      `<td>${resCell(x)}</td><td>${x.grade ? x.grade.toFixed(1) + '年' : '—'}</td></tr>`).join('') + '</table>';
+  $('lTm').innerHTML = rows.map(x => `<div class="pcard"><div class="top"><span>${x.c[1]}年　${esc(resTxt(x.c))}${placeTxt(x.c) ? '・' + placeTxt(x.c) : ''}</span><span>${pctTxt(x.g)}</span></div>` +
+    `<div class="recs">${esc(x.c[5])}${type ? '' : '（' + esc(x.c[2]) + '）'}</div>` +
+    `<div class="dl">${MV().avg} ${x.erg != null ? fmt(x.erg) + '（' + x.known + '名分）' : ergTxt(x)}${x.res != null ? '・' + (Math.abs(x.res) < 0.5 ? '見込みどおり' : '見込みより' + resCell(x)) : ''}${x.grade ? '・平均' + x.grade.toFixed(1) + '年' : ''}</div></div>`).join('');
+}
+
+/* ---- ④ 指標くらべ：3つの指標がそろったクルーだけで、成績との関係を比べる */
+function renderCmp() {
+  const type = $('aType').value, code = $('aEvent').value, a = Math.min(+$('aFrom').value, +$('aTo').value), b = Math.max(+$('aFrom').value, +$('aTo').value);
+  const strict = segVal('aQual') === 'strict', pick = segVal('aPick'), src = segVal('aSrc');
+  const base = A.data.crews.filter(c => (!type || c[2] === type) && c[3] === code && +c[1] >= a && +c[1] <= b);
+  const per = {};
+  Object.keys(METRICS).forEach(mt => {
+    const k = (mt === '2000' && src === 'o' ? 'o' : 'a') + pick;
+    per[mt] = new Map();
+    base.forEach(c => {
+      const r = withVal(c, crewVal(c, mt, k));
+      if (!hasErg(r) || !r[10] || !($('aAll').checked || r[15]) || (strict && r[14] !== '厳しめ')) return;
+      per[mt].set(c[0] + '|' + c[3] + '|' + c[6], r);
+    });
+  });
+  const common = [...per['2000'].keys()].filter(k => per['6000'].has(k) && per['20min'].has(k));
+  const res = Object.keys(METRICS).map(mt => {
+    const cm = common.map(k => per[mt].get(k)), solo = [...per[mt].values()];
+    return { mt, rc: pearson(cm.map(r => r[11]), cm.map(r => r[10])), ns: solo.length, rs: pearson(solo.map(r => r[11]), solo.map(r => r[10])) };
+  });
+  const n = common.length;
+  $('cmpStats').innerHTML = `<span>3つがそろったクルー<b>${n}</b></span>` + res.map(x => `<span>${METRICS[x.mt].name}が分かる<b>${x.ns}</b></span>`).join('');
+  const f = v => v == null ? '—' : v.toFixed(2);
+  $('tCmpM').innerHTML = '<table><tr><th>エルゴの種目</th><th>3つそろったクルーでの r</th><th>その種目だけ分かるクルーも含めた数</th><th>そのときの r</th></tr>' +
+    res.map(x => `<tr><td>${METRICS[x.mt].name}${x.mt === '20min' ? '<span class="muted">（500mペース）</span>' : ''}</td><td class="n" style="font-size:16px;font-weight:600">${f(x.rc)}</td><td>${x.ns}</td><td>${f(x.rs)}</td></tr>`).join('') + '</table>';
+  const ok = res.filter(x => x.rc != null).sort((p, q) => q.rc - p.rc);
+  $('cmpVerdict').innerHTML = ok.length < 3
+    ? lines(`3つがそろったクルーが${n}件のため、まだ比べられません（3件以上で計算します）。`, '各大学が自主測定の記録を入れると、比べられるようになります。')
+    : lines(`3つがそろった${n}クルーでは、${METRICS[ok[0].mt].name}が成績と一番つながっていました（r=${f(ok[0].rc)}）。`,
+      `次いで ${METRICS[ok[1].mt].name}（r=${f(ok[1].rc)}）、${METRICS[ok[2].mt].name}（r=${f(ok[2].rc)}）です。`,
+      ok[0].rc - ok[1].rc < 0.05 ? '上位2つの差は小さく、どちらが良いとは言い切れません。' : '',
+      n < 15 ? 'クルーが15未満なので、参考値として見てください。' : '');
+}
+
+/* ---- ③ 目標までの距離 */
+function renderRev(all) {
+  const letters = [...new Set(all.map(c => c[15]).filter(Boolean))].sort();
+  const cur = $('aTarget').value;
+  $('aTarget').innerHTML = letters.map((L, i) => `<option value="${L}">${i === 0 ? '決勝' + L : '決勝' + L + '以上（' + letters.slice(0, i + 1).join('・') + '）'}</option>`).join('');
+  if (letters.includes(cur)) $('aTarget').value = cur; else if (letters.length > 1) $('aTarget').value = letters[Math.min(1, letters.length - 1)];
+  const L = $('aTarget').value;
+  if (!L) { $('rStats').innerHTML = ''; $('rVerdict').textContent = '決勝の組の情報がありません。'; $('tRev').innerHTML = ''; draw('cRev', { type: 'scatter', data: { datasets: [] } }); return; }
+  const reached = all.filter(c => c[15] && c[15] <= L), not = all.filter(c => !(c[15] && c[15] <= L));
+  const rs = reached.map(c => c[11]).sort((p, q) => p - q), ns = not.map(c => c[11]).sort((p, q) => p - q);
+  const label = $('aTarget').selectedOptions[0].textContent;
+  $('rStats').innerHTML = `<span>届いたクルー<b>${rs.length}</b></span><span>届かなかったクルー<b>${ns.length}</b></span>` +
+    (rs.length ? `<span>届いたクルーの真ん中<b>${fmt(quant(rs, 0.5))}</b></span><span>届いたクルーの8割はこれより速い<b>${fmt(quant(rs, 0.8))}</b></span>` : '');
+  const uni = selUni();
+  const mineLast = uni ? all.filter(c => c[7] === uni).sort((p, q) => q[1] - p[1] || p[11] - q[11])[0] : null;
+  $('rVerdict').innerHTML = rs.length < 5 ? lines('届いたクルーが5未満なので、目安として見てください。') : lines(
+    `${label}に進んだクルーの半数は、${MV().avg}が ${fmt(quant(rs, 0.5))} より速い記録でした。`,
+    `8割は ${fmt(quant(rs, 0.8))} より速い記録でした。`,
+    mineLast ? `${uni}の直近（${mineLast[1]}年）は ${fmt(mineLast[11])}` + (mineLast[11] > quant(rs, 0.5) ? `で、半数のラインまで あと${(mineLast[11] - quant(rs, 0.5)).toFixed(1)}秒です。` : 'で、半数のラインより速い記録です。') : '');
+  /* 帯ごとの到達率（5秒刻み） */
+  const every = all.map(c => c[11]);
+  const rows = [];
+  if (every.length) {
+    const lo = Math.floor(Math.min(...every) / 5) * 5, hi = Math.max(...every);
+    for (let v = lo; v <= hi; v += 5) {
+      const inBin = all.filter(c => c[11] >= v && c[11] < v + 5);
+      if (!inBin.length) continue;
+      rows.push([v, inBin.length, inBin.filter(c => c[15] && c[15] <= L).length]);
+    }
+  }
+  A.bins = rows; A.rs = rs; A.label = label;
+  $('tRev').innerHTML = '<table><tr><th>' + MV().avg + '</th><th>クルー数</th><th>届いた</th><th>届いた割合</th></tr>' +
+    rows.map(r => `<tr><td>${fmt(r[0])}〜${fmt(r[0] + 4.9)}</td><td>${r[1]}</td><td>${r[2]}</td><td>${Math.round(r[2] / r[1] * 100)}%</td></tr>`).join('') + '</table>';
+  /* 届いた／届かなかったを上下に並べる。選んだ大学のクルーは丸で囲む */
+  let seed = 7; const jit = () => ((seed = (seed * 16807) % 2147483647) / 2147483647 - 0.5) * 0.35;
+  const mine = parseTime($('aMine').value);
+  const pr = reached.map(c => ({ x: c[11], y: 1 + jit(), c })), pn = not.map(c => ({ x: c[11], y: 0 + jit(), c }));
+  const ds = [
+    { label: '届いた', data: pr, backgroundColor: css('--ref'), _swatch: css('--ref'), pointRadius: mob() ? 4 : 5, borderColor: css('--surface'), borderWidth: 1 },
+    { label: '届かなかった', data: pn, backgroundColor: css('--nat-dot'), _swatch: css('--nat'), pointRadius: mob() ? 3.5 : 4 }
+  ];
+  const myPts = uni ? pr.concat(pn).filter(p => p.c[7] === uni) : [];
+  if (myPts.length) ds.push({ label: uni, data: myPts, backgroundColor: 'transparent', borderColor: ucol(0), borderWidth: 2.5, pointRadius: mob() ? 8 : 9, pointHoverRadius: 10, _swatch: ucol(0) });
+  if (mine) ds.push({ type: 'line', label: '入力した値', data: [{ x: mine, y: -0.5 }, { x: mine, y: 1.5 }], borderColor: ucol(0), borderWidth: 2, borderDash: [6, 3], pointRadius: 0, pointHitRadius: 0, _mine: true });
+  $('lgRev').innerHTML = key('dot', css('--ref'), '目標に届いたクルー') + key('dot', css('--nat-dot'), '届かなかったクルー') +
+    (myPts.length ? `<span class="k"><svg width="14" height="14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="${ucol(0)}" stroke-width="2.2"/></svg><span>${esc(uni)}のクルー</span></span>` : '') +
+    (mine ? key('dash', ucol(0), '入力した値') : '');
+  draw('cRev', { type: 'scatter', data: { datasets: ds },
+    options: { plugins: { tooltip: { filter: it => !it.dataset._mine, callbacks: { label: it => { const c = it.raw.c; return c[1] + '年 ' + c[6] + '：' + fmt(c[11]) + '（' + (c[15] ? '決勝' + c[15] : c[16]) + '）'; } } } },
+      scales: { x: axis({ title: { display: true, text: MV().axis }, ticks: { callback: fmt, maxTicksLimit: mob() ? 5 : 8 } }),
+                y: axis({ min: -0.6, max: 1.6, grid: { display: false }, ticks: { stepSize: 1, callback: v => v === 1 ? '届いた' : v === 0 ? '届かず' : '' } }) } } });
+  showMine();
+}
+function showMine() {
+  const v = parseTime($('aMine').value);
+  if (!$('aMine').value.trim()) { $('rMine').textContent = ''; return; }
+  if (v == null) { $('rMine').textContent = '「' + MV().ph + '」のように、分:秒で入力してください。'; return; }
+  const rs = A.rs || [], faster = rs.filter(x => x <= v).length;
+  const bin = (A.bins || []).find(b => v >= b[0] && v < b[0] + 5);
+  $('rMine').innerHTML = lines(`${A.label}に進んだクルー${rs.length}件のうち、${rs.length ? Math.round(faster / rs.length * 100) : 0}%が ${fmt(v)} と同じか、より速い記録でした。`,
+    bin ? `同じくらい（${fmt(bin[0])}〜${fmt(bin[0] + 4.9)}）のクルーは、${bin[1]}クルー中${bin[2]}クルーが届きました（${Math.round(bin[2] / bin[1] * 100)}%）。` : 'このくらいの記録のクルーは、過去にいません。');
+}
+function setView(v, scroll) {
+  document.querySelectorAll('#viewNav button, #tabbar button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === v)));
+  $('viewUni').hidden = v !== 'uni'; $('viewAna').hidden = v !== 'ana'; $('viewEdit').hidden = v !== 'edit';
+  store.set('rowing.view', v);
+  if (scroll) window.scrollTo(0, 0);
+  if (v === 'ana') loadAnalysis(); else if (v === 'edit') fillEditUnis(); else if (S.base) loadData();
+}
+/* 出典と集計日時（各カードの下）、運営者（ページの下） */
+function fillSources() {
+  const t = S.base && S.base.builtAt ? new Date(S.base.builtAt) : null;
+  const when = t && !isNaN(t) ? t.toLocaleString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+  document.querySelectorAll('.src[data-src]').forEach(el => {
+    const parts = el.dataset.src.split(',').map(k => SOURCES[k]).filter(Boolean);
+    el.innerHTML = '出典：' + parts.map(s => s[1] ? `<a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a>` : esc(s[0])).join('、') + (when ? `<span> ・ 集計 <span class="n">${esc(when)}</span></span>` : '');
+  });
+  const c = String(OPERATOR.contact || '').trim();
+  const link = /^https?:/.test(c) ? `<a href="${esc(c)}" target="_blank" rel="noopener">${esc(c)}</a>` : /@/.test(c) ? `<a href="mailto:${esc(c)}">${esc(c)}</a>` : esc(c);
+  $('footOp').innerHTML = (OPERATOR.name ? '運営：' + esc(OPERATOR.name) : '') + (c ? (OPERATOR.name ? ' ・ ' : '') + '連絡先：' + link : '') + (when ? ((OPERATOR.name || c) ? ' ・ ' : '') + '最終集計：' + esc(when) : '');
+}
+
+/* ================= 入力（参加大学の担当者） ================= */
+const E = { uni: '', code: '', data: null, tab: 'crew', tid: '', crews: null, editing: {}, drafts: {}, rows: [], errs: {}, busy: false };
+const normN = s => { let t = String(s || ''); try { t = t.normalize('NFKC'); } catch (e) {} return t.replace(/[\s　]/g, '').replace(/[髙﨑⻆德濵邊邉齋齊冨]/g, c => ({ '髙': '高', '﨑': '崎', '⻆': '角', '德': '徳', '濵': '浜', '邊': '辺', '邉': '辺', '齋': '斎', '齊': '斉', '冨': '富' }[c])); };
+const todayStr = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+
+function editCall(action, payload) {
+  payload = Object.assign({ uni: E.uni, code: E.code }, payload || {});
+  if (window.__EDIT_MOCK__) return Promise.resolve(window.__EDIT_MOCK__(action, payload));
+  const run = window.google && google.script && google.script.run;
+  if (run && typeof run.editApi === 'function') {
+    return new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej).editApi(action, payload));
+  }
+  return cfgReady.then(() => {
+    if (!API_URL) throw new Error('データの送り先（GASのURL）が設定されていません。');
+    /* text/plain で送ると、ブラウザの事前確認（CORS）なしでGASに届く */
+    return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action, payload }) })
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  });
+}
+function edMsg(html, kind) { $('edMsg').innerHTML = html ? `<div class="${kind === 'ok' ? 'ok-msg' : 'banner'}">${html}</div>` : ''; }
+function edBusy(on) { E.busy = on; document.querySelectorAll('#viewEdit button').forEach(b => { if (on) { b.dataset.wasDisabled = b.disabled ? '1' : ''; b.disabled = true; } else { b.disabled = b.dataset.wasDisabled === '1'; } }); }
+
+function fillEditUnis() {
+  if (!S.base) return;
+  const cur = $('edUni').value || S.my || S.unis[0] || '';
+  const names = S.base.unis.map(u => u[0]).filter(n => /大学/.test(n));
+  $('edUni').innerHTML = groupedOptions(names, n => `<option value="${esc(n)}">${n === S.my ? '★ ' : ''}${esc(n)}</option>`);
+  if (names.includes(cur)) $('edUni').value = cur;
+}
+function edOpen() {
+  E.uni = $('edUni').value; E.code = $('edCode').value.trim();
+  if (!E.uni || !E.code) { edMsg('大学と入力用の合言葉を入れてください。'); return; }
+  edBusy(true); edMsg('');
+  editCall('open').then(d => {
+    edBusy(false);
+    if (d.error) { edMsg(esc(d.error)); return; }
+    E.data = d; E.rows = [newErgRow()]; E.errs = {}; E.editing = {}; E.drafts = {};
+    $('edBody').hidden = false; $('edLogin').querySelector('h2').textContent = '入力：' + d.uni;
+    const need = d.tournaments.find(t => t.jara < t.crews);
+    $('edT').innerHTML = d.tournaments.map(t => `<option value="${esc(t.tid)}">${t.year} ${esc(t.type)}${t.jara >= t.crews ? '（選手名あり）' : t.manual ? `（入力済み ${t.manual}/${t.crews - t.jara}）` : '（未入力）'}</option>`).join('');
+    E.tid = (need || d.tournaments[0] || {}).tid || '';
+    $('edT').value = E.tid;
+    edTab(E.tab); loadCrews();
+  }).catch(e => { edBusy(false); edMsg('開けませんでした（' + esc(e.message || e) + '）'); });
+}
+function edTab(v) {
+  E.tab = v;
+  $('edTabs').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  $('edCrew').hidden = v !== 'crew'; $('edErg').hidden = v !== 'erg'; $('edRoster').hidden = v !== 'roster';
+  if (v === 'erg') { renderErgRows(); renderErgList(); }
+  if (v === 'roster') renderRoster();
+}
+
+/* ---- 候補（名簿＋JARAの記録がある部員） */
+function allCands() {
+  const d = E.data;
+  return d.players.map(p => ({ ref: p.pid, name: p.name, sex: p.sex, entry: p.entry, recs: p.recs || [], roster: true }))
+    .concat(d.jara.map(j => ({ ref: j.key, name: j.name, sex: j.sex, entry: j.entry, recs: j.recs, roster: false })));
+}
+const candLabel = c => `${c.name}（${c.entry ? c.entry + '年入学' : '入学年不明'}${c.recs.length ? '・JARA ' + c.recs.slice(-2).map(r => r[0] + '年度 ' + fmt(r[2])).join(' / ') : ''}${c.roster ? '' : ''}）`;
+function seatOptions(sex, year, value, isCox) {
+  const cs = allCands().filter(c => isCox || c.sex === sex);
+  const near = c => (c.entry && c.entry >= year - 5 && c.entry <= year) || c.recs.some(r => r[0] >= year - 3 && r[0] <= year);
+  const g1 = cs.filter(near).sort((a, b) => (b.recs.some(r => r[0] >= year - 2 && r[0] < year) - a.recs.some(r => r[0] >= year - 2 && r[0] < year)) || a.name.localeCompare(b.name, 'ja'));
+  const opt = c => `<option value="${esc(c.ref)}"${c.ref === value ? ' selected' : ''}>${esc(candLabel(c))}</option>`;
+  /* その年ごろの部員を先頭に。ほかの年の部員も、入学年度ごとにすべて選べる */
+  return `<option value="">（未入力）</option>` + (g1.length ? `<optgroup label="${year}年ごろの部員">${g1.map(opt).join('')}</optgroup>` : '') +
+    byEntryGroups(cs.filter(c => !near(c)), opt, 'ほかの年の部員・') + `<option value="__new"${value === '__new' ? ' selected' : ''}>＋ 名簿にない選手を追加…</option>`;
+}
+
+function loadCrews() {
+  if (!E.tid) { $('edCrews').innerHTML = '<div class="empty">この大学の大会記録がありません。</div>'; return; }
+  $('edCrews').innerHTML = '<div class="empty">読み込み中…</div>';
+  editCall('crews', { tid: E.tid }).then(d => {
+    if (d.error) { edMsg(esc(d.error)); return; }
+    E.crews = d.crews; renderCrews();
+  }).catch(e => edMsg('読み込めませんでした（' + esc(e.message || e) + '）'));
+}
+const crewKey = c => c.code + '|' + c.crew;
+function renderCrews() {
+  const t = E.data.tournaments.find(x => x.tid === E.tid) || {};
+  $('edCrewTitle').textContent = '大会のメンバー（' + (t.year || '') + ' ' + (t.type || '') + '）';
+  if (!E.crews.length) { $('edCrews').innerHTML = '<div class="empty">この大会に出たクルーはありません。</div>'; return; }
+  $('edCrews').innerHTML = E.crews.map((c, i) => {
+    const k = crewKey(c), ed = E.editing[k];
+    const rowerSeats = c.seats.filter(s => s !== 'C');
+    const filled = c.manual.filter(m => m.seat !== 'C').length;
+    const tag = c.jara ? '<span class="tag">JARAに選手名あり</span>' : filled >= rowerSeats.length ? `<span class="tag done">入力済み ${filled}/${rowerSeats.length}</span>` : filled ? `<span class="tag todo">入力途中 ${filled}/${rowerSeats.length}</span>` : '<span class="tag todo">未入力</span>';
+    const res = [c.stage, c.place ? c.place + '位' + (c.of ? '/' + c.of : '') : '', c.last ? '最終 ' + c.last : '', c.time].filter(Boolean).join('・');
+    const who = c.manual.length ? '<div class="who">' + c.seats.map(s => { const m = c.manual.find(x => x.seat === s); return m ? `${s}：${esc(m.name)}` : ''; }).filter(Boolean).join('　') + '</div>' : '';
+    let body = '';
+    if (ed) {
+      const dr = E.drafts[k];
+      body = '<div class="seats">' + c.seats.map(s => {
+        const v = dr[s] || {};
+        const val = v.ref && typeof v.ref === 'object' ? '__new' : (v.ref || '');
+        return `<span class="lbl">${s}</span><select data-ci="${i}" data-seat="${s}" aria-label="シート${s}">${seatOptions(c.sex, t.year, val, s === 'C')}</select>` +
+          (val === '__new' ? `<div class="newp"><input data-ci="${i}" data-seat="${s}" data-nk="name" placeholder="氏名（例 新潟 太郎）" value="${esc(v.ref.name || '')}" autocomplete="off"><input class="yr" data-ci="${i}" data-seat="${s}" data-nk="entry" placeholder="入学年度" inputmode="numeric" value="${esc(v.ref.entry || '')}" autocomplete="off">` +
+            (s === 'C' ? `<select data-ci="${i}" data-seat="${s}" data-nk="sex"><option${v.ref.sex === '男子' ? ' selected' : ''}>男子</option><option${v.ref.sex === '女子' ? ' selected' : ''}>女子</option></select>` : '') + '</div>' : '');
+      }).join('') + '</div>' +
+        `<div class="btnrow"><button type="button" class="primary" data-save="${i}">保存する</button><button type="button" data-cancel="${i}">やめる</button></div>`;
+    }
+    return `<div class="edcrew"><div class="h"><div><b>${esc(c.ev || c.code)}</b>　${esc(c.crew)}<div class="meta">${esc(res)}</div></div>${tag}</div>${who}` +
+      (c.jara ? '' : ed ? body : `<div class="btnrow"><button type="button" data-edit="${i}">${c.manual.length ? 'メンバーを直す' : 'メンバーを入力'}</button></div>`) + '</div>';
+  }).join('');
+}
+function startEdit(i) {
+  const c = E.crews[i], k = crewKey(c);
+  E.editing[k] = true;
+  E.drafts[k] = {};
+  c.manual.forEach(m => { E.drafts[k][m.seat] = { ref: m.pid }; });
+  renderCrews();
+}
+function saveCrewEdit(i) {
+  const c = E.crews[i], k = crewKey(c), dr = E.drafts[k];
+  const seats = c.seats.map(s => ({ seat: s, ref: dr[s] && dr[s].ref })).filter(x => x.ref);
+  for (const x of seats) {
+    if (typeof x.ref === 'object') {
+      if (!String(x.ref.name || '').trim()) { edMsg(`シート${x.seat}の氏名を入れてください。`); return; }
+      if (x.ref.entry && !/^\d{4}$/.test(String(x.ref.entry).trim())) { edMsg(`シート${x.seat}の入学年度は「2006」のように4けたで入れてください。`); return; }
+      x.ref = { name: x.ref.name.trim(), entry: String(x.ref.entry || '').trim(), sex: x.ref.sex || c.sex };
+    }
+  }
+  edBusy(true); edMsg('');
+  editCall('saveCrew', { tid: E.tid, ecode: c.code, crew: c.crew, seats }).then(d => {
+    edBusy(false);
+    if (d.error) { edMsg(esc(d.error)); return; }
+    E.crews = d.crews; delete E.editing[k]; delete E.drafts[k];
+    if (d.players) { E.data.players = d.players; E.data.jara = d.jara; }
+    const t = E.data.tournaments.find(x => x.tid === E.tid);
+    if (t) { t.manual = d.crews.filter(x => !x.jara && x.manual.length).length; const o = [...$('edT').options].find(x => x.value === E.tid); if (o) o.textContent = `${t.year} ${t.type}（入力済み ${t.manual}/${t.crews - t.jara}）`; }
+    renderCrews();
+    edMsg(`${esc(c.crew)}（${esc(c.ev || c.code)}）のメンバーを保存しました（${d.saved}名${d.added ? '・名簿に ' + d.added + '名を追加' : ''}）。画面への反映は、翌朝の自動更新か、上の「今すぐ反映する」のあとです。`, 'ok');
+  }).catch(e => { edBusy(false); edMsg('保存できませんでした（' + esc(e.message || e) + '）'); });
+}
+
+/* ---- エルゴ記録 */
+function newErgRow(prev) { return { date: prev ? prev.date : todayStr(), ref: '', kind: prev ? prev.kind : '2000m', value: '', weight: '', cond: prev ? prev.cond : '制限なし', memo: '' }; }
+/* 入学年度ごとのグループ（新しい年度から。入学年度が分からない選手は最後） */
+function byEntryGroups(cs, opt, prefix) {
+  const by = {};
+  cs.forEach(c => { const k = c.entry || 0; (by[k] = by[k] || []).push(c); });
+  return Object.keys(by).map(Number).sort((a, b) => (b || -1) - (a || -1)).map(k =>
+    `<optgroup label="${prefix || ''}${k ? k + '年入学' : '入学年不明'}">${by[k].sort((a, b) => a.sex.localeCompare(b.sex, 'ja') || a.name.localeCompare(b.name, 'ja')).map(opt).join('')}</optgroup>`).join('');
+}
+function ergPlayerOptions(value) {
+  /* 過去の記録も入れられるように、すべての年の部員を入学年度ごとに出す */
+  const opt = c => `<option value="${esc(c.ref)}"${c.ref === value ? ' selected' : ''}>${esc(c.name)}（${c.sex}${c.recs.length ? '・JARA ' + c.recs.slice(-1).map(r => r[0] + '年度 ' + fmt(r[2])).join('') : ''}）</option>`;
+  return '<option value="">選手を選ぶ</option>' + byEntryGroups(allCands(), opt);
+}
+function renderErgRows() {
+  if (!E.data) return;
+  const kinds = E.data.kinds || ['2000m', '6000m', '20分'], conds = E.data.conds || ['制限なし'];
+  $('edRows').innerHTML = E.rows.map((r, i) => {
+    const sel = (k, list) => list.map(x => `<option${x === r[k] ? ' selected' : ''}>${esc(x)}</option>`).join('');
+    const ph = r.kind === '20分' ? '5320（m）' : r.kind === '6000m' ? '21:30.0' : '6:42.3';
+    return `<div class="erow${E.errs[i] ? ' err' : ''}">` +
+      `<label><span class="el">測定日</span><input type="date" data-i="${i}" data-k="date" value="${esc(r.date)}"></label>` +
+      `<label class="wide2"><span class="el">選手</span><select data-i="${i}" data-k="ref">${ergPlayerOptions(r.ref)}</select></label>` +
+      `<label><span class="el">種目</span><select data-i="${i}" data-k="kind">${sel('kind', kinds)}</select></label>` +
+      `<label><span class="el">記録</span><input data-i="${i}" data-k="value" value="${esc(r.value)}" placeholder="${ph}" inputmode="decimal" autocomplete="off"></label>` +
+      `<label><span class="el">体重kg</span><input data-i="${i}" data-k="weight" value="${esc(r.weight)}" placeholder="任意" inputmode="decimal" autocomplete="off"></label>` +
+      `<label><span class="el">条件</span><select data-i="${i}" data-k="cond">${sel('cond', conds.includes(r.cond) ? conds : conds.concat([r.cond]))}</select></label>` +
+      `<label><span class="el">メモ</span><input data-i="${i}" data-k="memo" value="${esc(r.memo)}" placeholder="任意" autocomplete="off"></label>` +
+      `<button type="button" class="rm" data-rm="${i}" aria-label="この行を消す"><span class="lg-long">×</span><span class="lg-short">この行を消す</span></button>` +
+      (E.errs[i] ? `<div class="emsg">${esc(E.errs[i])}</div>` : '') + '</div>';
+  }).join('') || '<div class="empty">「行を追加」で入力欄を出します。</div>';
+  $('edErgNote').textContent = E.rows.length ? E.rows.length + '行' : '';
+}
+function saveErgs() {
+  const rows = E.rows.filter(r => r.ref || r.value);
+  if (!rows.length) { edMsg('保存する記録がありません。'); return; }
+  const idx = E.rows.map((r, i) => (r.ref || r.value) ? i : -1).filter(i => i >= 0);
+  E.errs = {};
+  rows.forEach((r, j) => { if (!r.ref) E.errs[idx[j]] = '選手を選んでください'; else if (!r.value) E.errs[idx[j]] = '記録を入力してください'; });
+  if (Object.keys(E.errs).length) { renderErgRows(); edMsg('入力に足りないところがあります。色のついた行を確かめてください。'); return; }
+  edBusy(true); edMsg('');
+  editCall('saveErgs', { rows }).then(d => {
+    edBusy(false);
+    if (d.error) { edMsg(esc(d.error)); return; }
+    if (d.errors) {
+      d.errors.forEach(e => { E.errs[idx[e.row]] = e.message; });
+      renderErgRows(); edMsg('保存していません。色のついた行を直してから、もう一度保存してください（' + d.errors.length + '行）。'); return;
+    }
+    E.data = Object.assign(E.data, d); E.rows = [newErgRow(rows[rows.length - 1])]; E.errs = {};
+    renderErgRows(); renderErgList();
+    edMsg(`${d.saved}件の記録を保存しました。画面への反映は、翌朝の自動更新か、上の「今すぐ反映する」のあとです。`, 'ok');
+  }).catch(e => { edBusy(false); edMsg('保存できませんでした（' + esc(e.message || e) + '）'); });
+}
+function renderErgList() {
+  const all = E.data.ergs || [];
+  /* 選手で絞り込む */
+  const who = [...new Map(all.map(e => [e.pid, e.name])).entries()].sort((x, y) => x[1].localeCompare(y[1], 'ja'));
+  const cur = E.ergWho || '';
+  $('edErgWho').innerHTML = '<option value="">すべての選手（' + all.length + '件）</option>' + who.map(([pid, n]) => `<option value="${esc(pid)}">${esc(n)}（${all.filter(e => e.pid === pid).length}件）</option>`).join('');
+  $('edErgWho').value = who.some(w => w[0] === cur) ? cur : '';
+  const list = all.filter(e => !$('edErgWho').value || e.pid === $('edErgWho').value);
+  const lim = E.showAllErgs ? list.length : 30;
+  $('edErgList').innerHTML = list.length ? '<table><tr><th>測定日</th><th class="lf">選手</th><th>種目</th><th>記録</th><th>500mペース</th><th>体重</th><th>条件</th><th class="lf">メモ</th><th></th></tr>' +
+    list.slice(0, lim).map(e => `<tr${E.ergEdit === e.id ? ' class="editrow"' : ''}><td>${esc(e.date)}</td><td class="lf">${esc(e.name)}</td><td>${esc(e.kind)}</td><td class="n" style="font-size:15px">${esc(e.rec)}</td><td>${e.pace ? fmt(e.pace) : '—'}</td><td>${e.weight === '' ? '—' : e.weight}</td><td>${esc(e.cond || '')}</td><td class="lf">${esc(e.memo || '')}</td>` +
+      `<td class="act"><button type="button" data-edit-erg="${esc(e.id)}">直す</button> <button type="button" data-del="${esc(e.id)}">削除</button></td></tr>`).join('') + '</table>' +
+    (list.length > lim ? `<button type="button" class="more" id="edMoreErgs">残り${list.length - lim}件を表示</button>` : '')
+    : '<div class="empty">まだ記録はありません。</div>';
+  /* スマホはカードで表示 */
+  $('edErgCards').innerHTML = list.length ? list.slice(0, lim).map(e => `<div class="pcard" style="cursor:default"><div class="top"><span>${esc(e.date)}　${esc(e.kind)}</span><span>${esc(e.rec)}</span></div>` +
+    `<div class="recs">${esc(e.name)}${e.pace ? '・' + fmt(e.pace) + '/500m' : ''}${e.weight === '' ? '' : '・' + e.weight + 'kg'}・${esc(e.cond || '')}${e.memo ? '・' + esc(e.memo) : ''}</div>` +
+    `<div class="btnrow" style="margin-top:6px"><button type="button" data-edit-erg="${esc(e.id)}">直す</button><button type="button" data-del="${esc(e.id)}">削除</button></div></div>`).join('') +
+    (list.length > lim ? `<button type="button" class="more" data-more-ergs="1">残り${list.length - lim}件を表示</button>` : '')
+    : '<div class="empty">まだ記録はありません。</div>';
+  renderErgPanel();
+}
+/* 記録を直す欄（一覧の上に出す） */
+function renderErgPanel() {
+  const e = (E.data.ergs || []).find(x => x.id === E.ergEdit);
+  if (!e) { $('edErgPanel').innerHTML = ''; return; }
+  const kinds = E.data.kinds || ['2000m', '6000m', '20分'], conds = E.data.conds || ['制限なし'];
+  const d = E.ergDraft;
+  const opt = (list, v) => list.concat(list.includes(v) || !v ? [] : [v]).map(x => `<option${x === v ? ' selected' : ''}>${esc(x)}</option>`).join('');
+  $('edErgPanel').innerHTML = `<div class="edcrew"><b>記録を直す（${esc(e.name)}・${esc(e.date)}・${esc(e.kind)} ${esc(e.rec)}）</b><div class="erow" style="border:0">` +
+    `<label><span class="el">測定日</span><input type="date" data-ek="date" value="${esc(d.date)}"></label>` +
+    `<label class="wide2"><span class="el">選手</span><select data-ek="ref">${ergPlayerOptions(d.ref)}</select></label>` +
+    `<label><span class="el">種目</span><select data-ek="kind">${opt(kinds, d.kind)}</select></label>` +
+    `<label><span class="el">記録</span><input data-ek="value" value="${esc(d.value)}" placeholder="${d.kind === '20分' ? '5320（m）' : d.kind === '6000m' ? '21:30.0' : '6:42.3'}" autocomplete="off"></label>` +
+    `<label><span class="el">体重kg</span><input data-ek="weight" value="${esc(d.weight)}" placeholder="任意" inputmode="decimal" autocomplete="off"></label>` +
+    `<label><span class="el">条件</span><select data-ek="cond">${opt(conds, d.cond)}</select></label>` +
+    `<label><span class="el">メモ</span><input data-ek="memo" value="${esc(d.memo)}" placeholder="任意" autocomplete="off"></label><span></span></div>` +
+    `<div class="btnrow"><button type="button" class="primary" data-erg-save="1">保存する</button><button type="button" data-erg-cancel="1">やめる</button></div></div>`;
+}
+function startErgEdit(id) {
+  const e = (E.data.ergs || []).find(x => x.id === id); if (!e) return;
+  E.ergEdit = id;
+  E.ergDraft = { date: e.date, ref: e.pid, kind: e.kind, value: e.kind === '20分' ? String(e.rec).replace(/m$/, '') : e.rec, weight: e.weight === '' ? '' : String(e.weight), cond: e.cond || '制限なし', memo: e.memo || '' };
+  renderErgList();
+  $('edErgPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function saveErgEdit() {
+  const d = E.ergDraft;
+  if (!d.ref) { edMsg('選手を選んでください。'); return; }
+  if (!String(d.value).trim()) { edMsg('記録を入力してください。'); return; }
+  edBusy(true); edMsg('');
+  editCall('updateErg', Object.assign({ id: E.ergEdit }, d)).then(r => {
+    edBusy(false);
+    if (r.error) { edMsg(esc(r.error)); return; }
+    E.data = Object.assign(E.data, r); E.ergEdit = null; renderErgList();
+    edMsg(esc(r.done || '記録を直しました。') + '画面への反映は、翌朝の自動更新か、上の「今すぐ反映する」のあとです。', 'ok');
+  }).catch(err => { edBusy(false); edMsg('保存できませんでした（' + esc(err.message || err) + '）'); });
+}
+function delErg(btn) {
+  /* 1回目は確認の表示に変え、3秒以内にもう一度押したら削除する */
+  if (btn.dataset.armed !== '1') { btn.dataset.armed = '1'; btn.textContent = 'もう一度押すと削除'; setTimeout(() => { if (btn.isConnected) { btn.dataset.armed = ''; btn.textContent = '削除'; } }, 3000); return; }
+  edBusy(true);
+  editCall('deleteErg', { id: btn.dataset.del }).then(d => {
+    edBusy(false);
+    if (d.error) { edMsg(esc(d.error)); return; }
+    E.data = Object.assign(E.data, d); renderErgList(); edMsg('記録を1件削除しました。', 'ok');
+  }).catch(e => { edBusy(false); edMsg('削除できませんでした（' + esc(e.message || e) + '）'); });
+}
+/* 貼り付け：測定日・氏名・種目・記録・体重・条件・メモ（タブ区切り。カンマ区切りも読む） */
+function readPaste() {
+  const text = $('edPaste').value.trim();
+  if (!text) return;
+  const cands = allCands();
+  const kindOf = k => { const t = normN(k).toLowerCase(); return /^(2000|2000m|2k)$/.test(t) ? '2000m' : /^(6000|6000m|6k)$/.test(t) ? '6000m' : /^(20|20分|20min|20mins)$/.test(t) ? '20分' : ''; };
+  const added = [], probs = [];
+  text.split(/\r?\n/).forEach((line, li) => {
+    const c = (line.includes('\t') ? line.split('\t') : line.split(',')).map(x => x.trim());
+    if (!c[0] || /測定日|日付/.test(c[0])) return;
+    const hit = cands.filter(x => normN(x.name) === normN(c[1]));
+    const pick = hit.length === 1 ? hit[0] : hit.filter(x => x.roster).length === 1 ? hit.filter(x => x.roster)[0] : hit.sort((a, b) => (b.entry || 0) - (a.entry || 0))[0];
+    const row = { date: String(c[0]).split('/').join('-').replace(/-(\d)(?=-|$)/g, '-0$1'), ref: pick ? pick.ref : '', kind: kindOf(c[2]) || '2000m', value: c[3] || '', weight: c[4] || '', cond: c[5] || '制限なし', memo: c[6] || '' };
+    if (!pick) probs.push((li + 1) + '行目「' + c[1] + '」が名簿・JARAの記録に見つかりません');
+    else if (hit.length > 1) probs.push((li + 1) + '行目「' + c[1] + '」は同じ名前が' + hit.length + '人います（入学年度が新しい人を仮に選びました）');
+    added.push(row);
+  });
+  E.rows = E.rows.filter(r => r.ref || r.value).concat(added);
+  E.errs = {};
+  renderErgRows();
+  $('edPaste').value = '';
+  edMsg(`${added.length}行を読み込みました。内容を確かめてから保存してください。` + (probs.length ? '<br>' + probs.map(esc).join('<br>') + '<br>見つからない選手は「選手名簿」で追加してから選んでください。' : ''), probs.length ? '' : 'ok');
+}
+
+/* ---- 選手名簿 */
+/* 今の学年の目安：入学年度から数える。5〜6年目は大学院（または5年目以上）の目安、7年目以降は卒業 */
+function gradeNow(entry) {
+  if (!entry) return '—';
+  const d = new Date(), fy = d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1, g = fy - entry + 1;
+  return g < 1 ? '入学前' : g <= 4 ? g + '年' : g <= 6 ? '大学院（目安）' : '卒業';
+}
+function renderRoster() {
+  const ps = E.data.players.slice().sort((a, b) => (b.entry || 0) - (a.entry || 0) || a.name.localeCompare(b.name, 'ja'));
+  const useTxt = u => u && (u.crews || u.ergs) ? [u.crews ? 'メンバー' + u.crews + '件' : '', u.ergs ? '記録' + u.ergs + '件' : ''].filter(Boolean).join('・') : '—';
+  const jaraTxt = p => (p.recs || []).map(r => r[0] + '年度 ' + fmt(r[2])).join(' / ') || '—';
+  const btns = p => `<button type="button" data-act="edit" data-pid="${esc(p.pid)}">直す</button> <button type="button" data-act="mergeOpen" data-pid="${esc(p.pid)}">まとめる</button> <button type="button" data-act="del" data-pid="${esc(p.pid)}">削除</button>`;
+  /* 直す・まとめるの入力欄は、表の外（上）に出す。スマホでも横にはみ出さないように */
+  const ep = ps.find(p => p.pid === E.pEdit), mp = ps.find(p => p.pid === E.pMerge);
+  let panel = '';
+  if (ep) panel = `<div class="edcrew"><b>${esc(ep.name)}さんを直す</b><div class="addp" style="margin-top:8px">
+      <label class="f">氏名<input data-pf="name" value="${esc(ep.name)}" autocomplete="off"></label>
+      <label class="f">性別<select data-pf="sex"><option${ep.sex === '男子' ? ' selected' : ''}>男子</option><option${ep.sex === '女子' ? ' selected' : ''}>女子</option></select></label>
+      <label class="f">入学年度<input class="yr" data-pf="entry" value="${esc(ep.entry || '')}" inputmode="numeric" autocomplete="off"></label>
+      <label class="f">メモ<input data-pf="memo" value="${esc(ep.memo || '')}" placeholder="任意（例：大学院に進学）" autocomplete="off"></label></div>
+      <div class="btnrow"><button type="button" class="primary" data-act="save" data-pid="${esc(ep.pid)}">保存する</button><button type="button" data-act="cancel">やめる</button></div></div>`;
+  if (mp) {
+    const others = ps.filter(x => x.pid !== mp.pid && x.sex === mp.sex);
+    panel = `<div class="edcrew"><b>${esc(mp.name)}さんに、別に登録された同じ人をまとめる</b>
+      <p class="note" style="margin:4px 0 8px">選んだ人の記録（大会メンバー・エルゴ記録）を${esc(mp.name)}さんに移します。<br>選んだ人は名簿から消えます。元には戻せないので、確かめてから押してください。</p>
+      <div class="addp"><label class="f">まとめる相手<select data-pf="drop">${others.map(x => `<option value="${esc(x.pid)}">${esc(x.name)}（${x.entry || '入学年度なし'}・${useTxt(x.uses)}）</option>`).join('')}</select></label></div>
+      <div class="btnrow"><button type="button" class="primary" data-act="merge" data-pid="${esc(mp.pid)}"${others.length ? '' : ' disabled'}>まとめる</button><button type="button" data-act="cancel">やめる</button>${others.length ? '' : '<span class="muted" style="font-size:12px">同じ性別のほかの選手がいません</span>'}</div></div>`;
+  }
+  $('edPPanel').innerHTML = panel;
+  $('edPList').innerHTML = ps.length ? '<table><tr><th class="lf">氏名</th><th>性別</th><th>入学年度</th><th>今の学年</th><th>使われ方</th><th class="lf">JARAインドアの記録</th><th></th></tr>' +
+    ps.map(p => `<tr><td class="lf">${esc(p.name)}${p.memo ? `<small class="muted">（${esc(p.memo)}）</small>` : ''}</td><td>${esc(p.sex)}</td><td>${p.entry || '—'}</td><td>${gradeNow(p.entry)}</td><td>${useTxt(p.uses)}</td><td class="lf">${jaraTxt(p)}</td><td class="act">${btns(p)}</td></tr>`).join('') + '</table>' : '';
+  $('edPCards').innerHTML = ps.map(p => `<div class="pcard" style="cursor:default"><div class="top"><span>${esc(p.name)}</span><span style="font-size:13px;font-weight:400">${gradeNow(p.entry)}</span></div>` +
+    `<div class="recs">${esc(p.sex)}・${p.entry ? p.entry + '年入学' : '入学年度なし'}・${useTxt(p.uses)}${p.memo ? '・' + esc(p.memo) : ''}</div><div class="dl">JARA：${jaraTxt(p)}</div><div class="btnrow" style="margin-top:6px">${btns(p)}</div></div>`).join('');
+  const caution = '<b>入学年度・学年についての注意</b><br>' +
+    'JARAの記録から登録した人の入学年度は、インドアローイング大会のときの年齢から計算した目安です（その年度に19才なら1年生として数えます）。<br>' +
+    'そのため、誕生日が1〜3月の人や、浪人して入学した人、留年した人、大学院生などは、実際と1年以上ずれることがあります。<br>' +
+    'ずれている人は、「直す」で入学年度を正しい値に書き換えてください。<br>' +
+    '「今の学年」は入学年度から数えた目安で、5〜6年目は「大学院（目安）」と表示します。';
+  $('edPNote').innerHTML = (ps.length
+    ? `ほかに、JARAインドアローイングの記録がある部員 ${E.data.jara.length}名が候補に出ます（名簿への登録は不要です）。`
+    : `名簿はまだ空です。JARAインドアローイングの記録がある部員 ${E.data.jara.length}名は、登録しなくても候補に出ます。`) + '<br><br>' + caution;
+  if (panel) $('edPPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function rosterAction(e) {
+  const b = e.target.closest('button[data-act]'); if (!b || E.busy) return;
+  const act = b.dataset.act, pid = b.dataset.pid, row = $('edPPanel');
+  const call = (action, payload) => {
+    edBusy(true); edMsg('');
+    editCall(action, payload).then(d => {
+      edBusy(false);
+      if (d.error) { edMsg(esc(d.error)); return; }
+      E.data = Object.assign(E.data, d); E.pEdit = E.pMerge = null; renderRoster();
+      edMsg(esc(d.done || '保存しました。') + 'エルゴとのつながりは、次の反映のときに計算し直します。', 'ok');
+    }).catch(err => { edBusy(false); edMsg('保存できませんでした（' + esc(err.message || err) + '）'); });
+  };
+  if (act === 'edit') { E.pEdit = pid; E.pMerge = null; renderRoster(); }
+  else if (act === 'mergeOpen') { E.pMerge = pid; E.pEdit = null; renderRoster(); }
+  else if (act === 'cancel') { E.pEdit = E.pMerge = null; renderRoster(); }
+  else if (act === 'save') {
+    const v = k => row.querySelector(`[data-pf="${k}"]`).value.trim();
+    if (!v('name')) { edMsg('氏名を入れてください。'); return; }
+    if (v('entry') && !/^\d{4}$/.test(v('entry'))) { edMsg('入学年度は「2023」のように4けたで入れてください。'); return; }
+    call('updatePlayer', { pid, name: v('name'), sex: v('sex'), entry: v('entry'), memo: v('memo') });
+  }
+  else if (act === 'merge' || act === 'del') {
+    /* 取り消せない操作なので、1回目は確認の表示に変え、3秒以内にもう一度押したら実行する */
+    if (b.dataset.armed !== '1') { b.dataset.armed = '1'; const t = b.textContent; b.textContent = 'もう一度押すと実行'; setTimeout(() => { if (b.isConnected) { b.dataset.armed = ''; b.textContent = t; } }, 3000); return; }
+    if (act === 'del') call('deletePlayer', { pid });
+    else call('mergePlayers', { keep: pid, drop: row.querySelector('[data-pf="drop"]').value });
+  }
+}
+function addPlayer() {
+  const name = $('edPName').value.trim(), entry = $('edPEntry').value.trim(), sex = $('edPSex').value;
+  if (!name) { edMsg('氏名を入れてください。'); return; }
+  if (entry && !/^\d{4}$/.test(entry)) { edMsg('入学年度は「2023」のように4けたで入れてください。'); return; }
+  edBusy(true);
+  editCall('addPlayer', { name, sex, entry }).then(d => {
+    edBusy(false);
+    if (d.error) { edMsg(esc(d.error)); return; }
+    E.data = Object.assign(E.data, d); $('edPName').value = ''; $('edPEntry').value = '';
+    renderRoster();
+    edMsg(d.added ? `${esc(name)}さんを名簿に追加しました。` : `${esc(name)}さんは、すでに名簿か候補にいます。`, 'ok');
+  }).catch(e => { edBusy(false); edMsg('追加できませんでした（' + esc(e.message || e) + '）'); });
+}
+
+function initEdit() {
+  $('edOpen').addEventListener('click', edOpen);
+  $('edCode').addEventListener('keydown', e => { if (e.key === 'Enter') edOpen(); });
+  $('edTabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) edTab(b.dataset.v); });
+  $('edT').addEventListener('change', () => { E.tid = $('edT').value; E.editing = {}; E.drafts = {}; edMsg(''); loadCrews(); });
+  const crews = $('edCrews');
+  crews.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || E.busy) return;
+    if (b.dataset.edit) startEdit(+b.dataset.edit);
+    else if (b.dataset.cancel) { const k = crewKey(E.crews[+b.dataset.cancel]); delete E.editing[k]; delete E.drafts[k]; renderCrews(); }
+    else if (b.dataset.save) saveCrewEdit(+b.dataset.save);
+  });
+  const onSeat = e => {
+    const el = e.target; if (!el.dataset.seat) return;
+    const c = E.crews[+el.dataset.ci], k = crewKey(c), dr = E.drafts[k];
+    if (el.dataset.nk) { dr[el.dataset.seat].ref[el.dataset.nk] = el.value; return; }
+    if (el.value === '__new') { dr[el.dataset.seat] = { ref: { name: '', entry: '', sex: c.sex } }; renderCrews(); const inp = crews.querySelector(`input[data-ci="${el.dataset.ci}"][data-seat="${el.dataset.seat}"]`); if (inp) inp.focus(); }
+    else { dr[el.dataset.seat] = { ref: el.value }; if (e.type === 'change') renderCrews(); }
+  };
+  crews.addEventListener('change', onSeat);
+  crews.addEventListener('input', e => { if (e.target.dataset.nk) onSeat(e); });
+  const rows = $('edRows');
+  const onRow = e => { const el = e.target, i = el.dataset.i; if (i == null) return; E.rows[+i][el.dataset.k] = el.value; if (el.dataset.k === 'kind') renderErgRows(); };
+  rows.addEventListener('input', onRow); rows.addEventListener('change', onRow);
+  rows.addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; E.rows.splice(+b.dataset.rm, 1); E.errs = {}; renderErgRows(); });
+  $('edAddRow').addEventListener('click', () => { E.rows.push(newErgRow(E.rows[E.rows.length - 1])); renderErgRows(); });
+  $('edSaveErgs').addEventListener('click', saveErgs);
+  $('edPasteBtn').addEventListener('click', readPaste);
+  $('edErgList').addEventListener('click', e => { const b = e.target.closest('button'); if (!b || E.busy) return; if (b.id === 'edMoreErgs') { E.showAllErgs = true; renderErgList(); } else if (b.dataset.editErg) startErgEdit(b.dataset.editErg); else if (b.dataset.del) delErg(b); });
+  $('edErgCards').addEventListener('click', e => { const b = e.target.closest('button'); if (!b || E.busy) return; if (b.dataset.moreErgs) { E.showAllErgs = true; renderErgList(); } else if (b.dataset.editErg) startErgEdit(b.dataset.editErg); else if (b.dataset.del) delErg(b); });
+  $('edErgWho').addEventListener('change', () => { E.ergWho = $('edErgWho').value; E.showAllErgs = false; renderErgList(); });
+  const ep = $('edErgPanel');
+  const onEp = e => { const k = e.target.dataset.ek; if (!k) return; E.ergDraft[k] = e.target.value; if (k === 'kind' && e.type === 'change') renderErgPanel(); };
+  ep.addEventListener('input', onEp); ep.addEventListener('change', onEp);
+  ep.addEventListener('click', e => { const b = e.target.closest('button'); if (!b || E.busy) return; if (b.dataset.ergSave) saveErgEdit(); else if (b.dataset.ergCancel) { E.ergEdit = null; renderErgList(); } });
+  $('edPAdd').addEventListener('click', addPlayer);
+  $('edRoster').addEventListener('click', rosterAction);
+  $('edRefresh').addEventListener('click', () => {
+    if (E.busy) return;
+    edBusy(true); edMsg(''); $('edRefreshNote').textContent = '反映しています…（1〜2分）';
+    editCall('refresh').then(d => {
+      edBusy(false); $('edRefreshNote').textContent = '';
+      if (d.error) { edMsg(esc(d.error)); return; }
+      /* 次に各タブを開いたとき、新しい集計を読み直す */
+      A.data = null; A.loading = false; T.data = {}; S.data = {};
+      edMsg(`反映しました（${esc(d.time)}）。「大学別」「戦績とエルゴ」を開くと、新しい内容が表示されます。`, 'ok');
+    }).catch(e => { edBusy(false); $('edRefreshNote').textContent = ''; edMsg('反映できませんでした（' + esc(e.message || e) + '）'); });
+  });
+}
+
+function init() {
+  chartDefaults();
+  $('rule').textContent = '大学の一覧を読み込んでいます…';
+  S.baseReady = api('unis').then(d => {
+    if (d.error) { $('rule').textContent = d.error; return; }
+    S.base = d;
+    $('rule').textContent = '大学の部員（18〜23才）のエルゴ記録と、大会の戦績をまとめて見られます。';
+    fillSources();
+    $('foot').textContent = '大学の平均は、インドアローイングに出た部員だけの平均です。部員全体の平均ではありません。';
+    const opts = d.years.map(y => `<option value="${y}">${y}</option>`).join('');
+    $('from').innerHTML = opts; $('to').innerHTML = opts; setQuick(0);
+    let saved = []; try { saved = JSON.parse(store.get('rowing.unis') || '[]'); } catch (e) {}
+    S.unis = (Array.isArray(saved) ? saved : []).filter(n => d.unis.some(u => u[0] === n));
+    /* ★の大学は、いつも1校目（青）に置く */
+    if (S.my && d.unis.some(u => u[0] === S.my)) S.unis = [S.my].concat(S.unis.filter(u => u !== S.my));
+    S.unis = S.unis.slice(0, 3);
+    if (!S.unis.length) S.unis = [d.unis.find(u => u[0] === '新潟大学') ? '新潟大学' : (d.unis[0] || [''])[0]].filter(Boolean);
+    renderChips(); loadData(); fillEditUnis();
+    if (!$('viewAna').hidden && A.data) renderAna();
+  }).catch(e => { $('rule').textContent = '読み込みに失敗しました（' + (e.message || e) + '）'; });
+
+  /* 大学の候補リスト（入力した文字を含む大学を、記録の多い順に表示。押すと追加） */
+  const ui = $('uniInput'), ul = $('uniSugg');
+  let act = -1, matches = [];
+  const closeSugg = () => { ul.hidden = true; ui.setAttribute('aria-expanded', 'false'); act = -1; };
+  const openSugg = () => {
+    if (!S.base) return;
+    const q = ui.value.trim();
+    matches = S.base.unis.filter(u => !S.unis.includes(u[0]) && (!q || u[0].includes(q))).sort((a, b) => byNorth(a[0], b[0]));
+    act = matches.length ? 0 : -1;
+    let grp = null;
+    ul.innerHTML = matches.length
+      ? matches.map((u, i) => { const p = regionOf(u[0]) || '所在地が未設定'; const head = p !== grp ? `<li class="grp" role="presentation">${esc(p)}</li>` : ''; grp = p;
+          return head + `<li role="option"><button type="button" data-n="${esc(u[0])}" class="${i === act ? 'act' : ''}" tabindex="-1">${esc(u[0])}<small>${u[1]}件・最新${u[2]}年度</small></button></li>`; }).join('')
+      : `<li class="none">「${esc(q)}」を含む大学は見つかりません</li>`;
+    ul.hidden = false; ui.setAttribute('aria-expanded', 'true');
+  };
+  const pickUni = name => { addUni(name); ui.value = ''; closeSugg(); };
+  ui.addEventListener('focus', openSugg);
+  ui.addEventListener('input', openSugg);
+  ui.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (ul.hidden) openSugg();
+      if (!matches.length) return;
+      e.preventDefault();
+      act = (act + (e.key === 'ArrowDown' ? 1 : -1) + matches.length) % matches.length;
+      ul.querySelectorAll('button').forEach((b, i) => b.classList.toggle('act', i === act));
+      ul.querySelectorAll('button')[act].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const exact = S.base && S.base.unis.find(u => u[0] === ui.value.trim());
+      if (exact) pickUni(exact[0]); else if (act >= 0 && matches[act]) pickUni(matches[act][0]); else if (ui.value.trim()) addUni(ui.value.trim());
+    } else if (e.key === 'Escape') closeSugg();
+  });
+  /* pointerdown で拾う（入力欄のフォーカスが外れて候補が消える前に追加する） */
+  ul.addEventListener('pointerdown', e => { const b = e.target.closest('button[data-n]'); if (b) { e.preventDefault(); pickUni(b.dataset.n); } });
+  ul.addEventListener('click', e => { const b = e.target.closest('button[data-n]'); if (b) pickUni(b.dataset.n); });
+  document.addEventListener('pointerdown', e => { if (!e.target.closest('#uniCombo')) closeSugg(); });
+  $('uchips').addEventListener('click', e => {
+    const b = e.target.closest('[data-rm]'); if (b) { removeUni(+b.dataset.rm); return; }
+    const s = e.target.closest('[data-star]'); if (s) { const u = S.unis[+s.dataset.star]; setMy(u === S.my ? '' : u); }
+  });
+  $('codeBtn').addEventListener('click', () => { S.data = {}; S.selKey = null; loadData(); });
+  $('code').addEventListener('keydown', e => { if (e.key === 'Enter') { S.data = {}; S.selKey = null; loadData(); } });
+  ['cat', 'from', 'to'].forEach(id => $(id).addEventListener('change', () => { if (!S.base) return; syncQuick(); render(); }));
+  $('quick').addEventListener('click', e => { const b = e.target.closest('button'); if (!b || !S.base) return; setQuick(+b.dataset.n); render(); });
+  const seg = (id, fn) => $(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); fn(b.dataset.v); });
+  seg('sex', v => { S.sex = v; S.selKey = null; render(); });
+  seg('bodyMode', v => { S.body = v; if (S.base) render(); });
+  $('rkTabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; R.tab = +b.dataset.t; R.season = ''; renderRanking(); });
+  $('rkSeason').addEventListener('change', () => { R.season = $('rkSeason').value === 'all' ? 'all' : +$('rkSeason').value; renderRanking(); });
+  ['rkMetric', 'rkSrc'].forEach(id => $(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b.disabled) return; $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); if (id === 'rkMetric') { R.metric = b.dataset.v; R.season = ''; } else R.src = b.dataset.v; renderRanking(); }));
+  $('ptabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; S.tab = +b.dataset.t; S.selKey = null; S.showAll = false; render(); });
+  const pick = e => { const el = e.target.closest('.prow, .pcard'); if (!el || !S.pctx) return; const p = S.pctx.ppl[+el.dataset.i]; if (p) showPerson(p, true); };
+  ['tPeople', 'lPeople'].forEach(id => { $(id).addEventListener('click', pick); $(id).addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e); } }); });
+  $('pdClose').addEventListener('click', () => { S.selKey = null; $('pDetail').hidden = true; document.querySelectorAll('.prow.sel, .pcard.sel').forEach(el => el.classList.remove('sel')); });
+  $('ftoggle').addEventListener('click', () => { const open = $('filters').classList.toggle('open'); $('ftoggle').setAttribute('aria-expanded', String(open)); $('ftoggle').textContent = open ? '閉じる' : '絞り込み'; });
+  MQ.addEventListener('change', () => { chartDefaults(); render(); if (A.data) renderAna(); });
+  $('viewNav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setView(b.dataset.v); });
+  $('tabbar').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setView(b.dataset.v, true); });
+  $('aType').addEventListener('change', () => { fillEvents(); renderAna(); });
+  $('aMyUni').addEventListener('change', onUniChange);
+  const reVariant = () => { if (!A.data) return; applyVariant(); fillEvents(); renderAna(); };
+  $('aMetric').addEventListener('change', reVariant);
+  ['aSrc', 'aPick'].forEach(id => $(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b.disabled) return; $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); reVariant(); }));
+  ['aEvent', 'aFrom', 'aTo', 'aAll'].forEach(id => $(id).addEventListener('change', renderAna));
+  $('aTarget').addEventListener('change', () => renderRev(anaRows()));
+  $('aQual').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $('aQual').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderAna(); });
+  $('aMineBtn').addEventListener('click', () => renderRev(anaRows()));
+  $('aMine').addEventListener('keydown', e => { if (e.key === 'Enter') renderRev(anaRows()); });
+  initEdit();
+  const sv = store.get('rowing.view');
+  if (sv === 'ana' || sv === 'edit') setView(sv);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { chartDefaults(); renderChips(); render(); if (A.data) renderAna(); });
+}
+/* グラフの部品が届いてから始める。届かなかったときも、表と文章は表示する */
+window.__chartReady.then(ok => {
+  if (!ok) window.__rowingFatal && (() => {
+    const w = document.querySelector('.wrap'), el = document.createElement('div');
+    el.className = 'banner';
+    el.textContent = 'グラフの部品を読み込めませんでした（ネットワークの制限の可能性があります）。表と文章だけ表示しています。ページを開き直すと表示されることがあります。';
+    w.insertBefore(el, w.children[2] || null);
+  })();
+  init();
+});
+})();
+</script>
+</body>
+</html>
